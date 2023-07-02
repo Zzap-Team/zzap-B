@@ -1,5 +1,4 @@
-
-export class UpdateUserDTO{
-    username: string;
-    password: string;
+export class UpdateUserDTO {
+  name: string;
+  password: string;
 }
