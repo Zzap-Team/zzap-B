@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { CreateArticleDTO } from './dto/create-article.dto';
+import { UpdateArticleDTO } from './dto/update-article.dto';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
 
@@ -36,7 +37,7 @@ export class ArticleController {
   }
 
   @Patch(':articleID')
-  update(@Param() articleID: string, @Body() article: CreateArticleDTO) {
+  update(@Param() articleID: string, @Body() article: UpdateArticleDTO) {
     return this.articleService.update(articleID, article);
   }
 }
