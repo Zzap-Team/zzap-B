@@ -1,17 +1,20 @@
-import { Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
-    //Primary Key & auto increment
-    @PrimaryGeneratedColumn()
-    uid: number;
+  //Primary Key & auto increment
+  @PrimaryGeneratedColumn()
+  uid: string;
 
-    @Column()
-    username: string;
+  @Column()
+  name: string;
 
-    @Column()
-    password: string;
+  @Column()
+  password: string;
 
-    @Column()
-    email: String;
+  @Column()
+  email: string;
+
+  @Column()
+  createdAt: string; // DOTO: change string type to Date type
 }
