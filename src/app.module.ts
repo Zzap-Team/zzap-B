@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
-import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
+import { UserModule } from './user/user.module';
+import { User } from './user/user.entity';
 import { ArticleModule } from './article/article.module';
 
 @Module({
@@ -28,7 +28,7 @@ import { ArticleModule } from './article/article.module';
       autoSchemaFile: 'schema.gql',
       //playground: false, 주소: http://localhost:3000/graphql
     }),
-    UsersModule,
+    UserModule,
     ArticleModule,
   ],
   controllers: [],

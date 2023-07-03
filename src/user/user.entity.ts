@@ -1,20 +1,27 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  IsEmail,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 @Entity()
 export class User {
   //Primary Key & auto increment
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   uid: string;
 
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column()
   password: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
-  createdAt: string; // DOTO: change string type to Date type
+  createdAt: Date;
 }
