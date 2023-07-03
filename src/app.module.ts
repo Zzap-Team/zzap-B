@@ -23,10 +23,11 @@ import { ArticleModule } from './article/article.module';
       entities: [__dirname + `/**/*.entity{.ts,.js}`],
       synchronize: process.env.DB_SYNCHRONIZE === 'true', // change 'false' at Production Env
     }),
-    /*GraphQLModule.forRoot<ApolloDriverConfig>({
-    driver: ApolloDriver,
-    //playground: false
-  }),*/
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: 'schema.gql',
+      //playground: false, 주소: http://localhost:3000/graphql
+    }),
     UsersModule,
     ArticleModule,
   ],

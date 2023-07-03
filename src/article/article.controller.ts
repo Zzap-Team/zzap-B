@@ -7,14 +7,18 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateArticleDTO } from './dto/create-article.dto';
-import { UpdateArticleDTO } from './dto/update-article.dto';
+import { CreateArticleDTO } from './dto/createArticle.dto';
+import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { ArticleService } from './article.service';
+import { ArticleResolver } from './article.resolver';
 import { Article } from './article.entity';
 
 @Controller('article')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly articleResolver: ArticleResolver,
+  ) {}
 
   @Get()
   getAll(): Promise<Article[]> {
@@ -28,11 +32,12 @@ export class ArticleController {
 
   @Post()
   create(@Body() article: CreateArticleDTO) {
+    console.log(article);
     return this.articleService.create(article);
   }
 
   @Delete(':articleID')
-  delete(@Param() articleID: string): Promise<void> {
+  delete(@Param() articleID: string): Promise<boolean> {
     return this.articleService.delete(articleID);
   }
 

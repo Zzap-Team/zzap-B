@@ -1,6 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity({ name: 'article' })
 export class Article {
   //Primary Key & auto increment
   @PrimaryGeneratedColumn('uuid')
@@ -15,9 +21,9 @@ export class Article {
   @Column()
   content: string;
 
-  @Column()
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt: Date;
 }
