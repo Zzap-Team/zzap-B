@@ -7,6 +7,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { User } from './user/schema/user.entity';
 import { ArticleModule } from './article/article.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ArticleModule } from './article/article.module';
     }),
     UserModule,
     ArticleModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

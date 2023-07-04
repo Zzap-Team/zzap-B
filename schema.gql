@@ -30,6 +30,12 @@ type Query {
   getUser(uid: String!): User!
   getArticles: [Article!]!
   getArticle(articleID: String!): Article!
+  signIn(signInDTO: SignInDTO!): String!
+}
+
+input SignInDTO {
+  email: String!
+  password: String!
 }
 
 type Mutation {

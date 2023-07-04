@@ -10,5 +10,6 @@ import { UserResolver } from './user.resolver';
   imports: [TypeOrmModule.forFeature([User])],
   providers: [UserResolver, UserService],
   controllers: [UserController],
+  exports: [UserService],
 })
 export class UserModule {}

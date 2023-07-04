@@ -20,8 +20,19 @@ export class UserService {
     return await this.userRepository.findOneBy({ uid: uid });
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOneBy({ email: email });
+  }
+
+  private async exist(uid: string): Promise<boolean> {
+    return null === !(await this.userRepository.findOneBy({ uid: uid }));
+  }
+
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
+    if (this.exist(createUserDTO.email))
+      throw new Error('Error: This account already exists');
+
     newUser.uid = uuidv4();
     newUser.name = createUserDTO.name;
     newUser.email = createUserDTO.email;
