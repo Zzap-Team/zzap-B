@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { Article } from './article.entity';
+import { Article } from './schema/article.entity';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 

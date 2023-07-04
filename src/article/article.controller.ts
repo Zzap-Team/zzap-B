@@ -11,7 +11,7 @@ import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { ArticleService } from './article.service';
 import { ArticleResolver } from './article.resolver';
-import { Article } from './article.entity';
+import { Article } from './schema/article.entity';
 
 @Controller('article')
 export class ArticleController {
