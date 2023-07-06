@@ -10,7 +10,7 @@ import {
 import { CreateUserDTO } from './dto/createUser.dto';
 import { User } from './schema/user.entity';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/jwt/jwtAuth.guard';
 
 @Controller('user')
 export class UserController {

@@ -1,6 +1,6 @@
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { ApolloError } from 'apollo-server-express';
-import { AuthService } from './auth.service';
+import { AuthService } from './jwtAuth.service';
 import { SignInDTO } from './dto/signIn.dto';
 
 @Resolver()
