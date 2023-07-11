@@ -22,10 +22,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Can not find access token');
     }
     try {
-      const payload = this.jwtService.verify(token, {
+      const { uid } = this.jwtService.verify(token, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       });
-      request['user'] = payload;
+      request['uid'] = uid;
     } catch {
       throw new UnauthorizedException('Your access token is expired');
     }
@@ -34,6 +34,7 @@ export class AuthGuard implements CanActivate {
 
   protected extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    console.log(request.headers);
     return type === 'Bearer' ? token : undefined;
   }
 }

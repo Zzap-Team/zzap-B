@@ -19,7 +19,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseGuards(AuthGuard)
   @Get()
   getUsers(): Promise<User[]> {
     return this.userService.findAll();

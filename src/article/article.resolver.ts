@@ -1,8 +1,9 @@
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
 import { Article } from './schema/article.model';
 import { ApolloError } from 'apollo-server-express';
 import { ArticleService } from './article.service';
-
+import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 
@@ -28,6 +29,7 @@ export class ArticleResolver {
     }
   }
 
+  @UseGuards(GqlAuthGurad)
   @Mutation((returns) => Article)
   async createArticle(
     @Args('createArticleDTO') createArticleDTO: CreateArticleDTO,
@@ -40,6 +42,7 @@ export class ArticleResolver {
     }
   }
 
+  @UseGuards(GqlAuthGurad)
   @Mutation((returns) => Boolean)
   async updateArticle(
     @Args('updateArticleDTO') updateArticleDTO: UpdateArticleDTO,
@@ -52,6 +55,7 @@ export class ArticleResolver {
     }
   }
 
+  @UseGuards(GqlAuthGurad)
   @Mutation((returns) => Boolean)
   async deleteArticle(@Args('articleID') articleID: string): Promise<Boolean> {
     try {

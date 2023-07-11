@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signIn.dto';
+import { TokenInfo } from './model/tokenInfo.model';
 import { Request } from 'express';
 
 @Injectable()
@@ -47,10 +48,9 @@ export class AuthService {
     }
   }
 
-  async signIn(signInDTO: SignInDTO): Promise<any> {
+  async signIn(signInDTO: SignInDTO) {
     const user = await this.userService.findOneByEmail(signInDTO.email);
     if (!user) throw new UnauthorizedException();
-
     const isPasswordMatching = await bcrypt.compareSync(
       signInDTO.password,
       user.password,
@@ -61,7 +61,7 @@ export class AuthService {
     return await this.getJwtAccessToken(user.uid);
   }
 
-  getJwtAccessToken(uid: String) {
+  private getJwtAccessToken(uid: String) {
     const payload = { uid };
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,

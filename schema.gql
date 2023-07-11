@@ -37,13 +37,7 @@ type Query {
   getUser(uid: String!): User!
   getArticles: [Article!]!
   getArticle(articleID: String!): Article!
-  signIn(signInDTO: SignInDTO!): TokenInfo!
   testQuery: String!
-}
-
-input SignInDTO {
-  email: String!
-  password: String!
 }
 
 type Mutation {
@@ -52,6 +46,9 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
+  signIn(signInDTO: SignInDTO!): TokenInfo!
+  signOut: TokenInfo!
+  refreshToken: TokenInfo!
 }
 
 input CreateUserDTO {
@@ -68,4 +65,9 @@ input CreateArticleDTO {
 input UpdateArticleDTO {
   title: String!
   content: String
+}
+
+input SignInDTO {
+  email: String!
+  password: String!
 }

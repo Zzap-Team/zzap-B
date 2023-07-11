@@ -41,7 +41,7 @@ export class AuthController {
   ) {
     const user = await this.authService.vaildateUser(signInDto);
     const { token: accessToken, ...accessOption } =
-      this.authService.getJwtAccessToken(user.uid);
+      await this.authService.signIn(user.uid);
 
     const { token: refreshToken, ...refreshOption } =
       this.authService.getJwtRefreshToken(user.uid);
@@ -52,7 +52,7 @@ export class AuthController {
     return user;
   }
 
-  //@UseGuards(RefreshGuard)
+  @UseGuards(RefreshGuard)
   @Get('refresh')
   async refresh(
     @Req() req: Request,
@@ -69,12 +69,5 @@ export class AuthController {
   async logOut(@Res({ passthrough: true }) res: Response) {
     const { token, ...option } = await this.authService.signOut();
     res.cookie('Authentication', token, option);
-  }
-
-  /* 실험용 */
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
   }
 }

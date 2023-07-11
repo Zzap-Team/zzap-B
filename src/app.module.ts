@@ -28,11 +28,12 @@ import { OauthModule } from './auth/oauth/oauth.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+
       context: ({ req, connection }) => {
         //graphql에게 request를 요청할때 req안으로 jwt토큰이 담깁니다.
         if (req) {
-          const user = req.headers.authorization;
-          return { ...req, user };
+          const token = req.headers.authorization;
+          return { ...req, token };
         } else {
           return connection;
         }
