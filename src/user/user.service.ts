@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './schema/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -16,27 +17,34 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(uid: string): Promise<User> {
+  async findOneByID(uid: string): Promise<User> {
     return await this.userRepository.findOneBy({ uid: uid });
   }
 
   async findOneByEmail(email: string): Promise<User> {
-    return await this.userRepository.findOneBy({ email: email });
+    const user = await this.userRepository.findOneBy({ email: email });
+    if (user) {
+      return user;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
-  private async exist(uid: string): Promise<boolean> {
-    return null === !(await this.userRepository.findOneBy({ uid: uid }));
+  private async exist(email: string): Promise<boolean> {
+    return !!(await this.userRepository.findOneBy({ email: email }));
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
-    if (this.exist(createUserDTO.email))
-      throw new Error('Error: This account already exists');
+    const isExist = await this.exist(createUserDTO.email);
+    if (isExist) throw new Error('Error: This account already exists');
 
     newUser.uid = uuidv4();
     newUser.name = createUserDTO.name;
     newUser.email = createUserDTO.email;
-    newUser.password = createUserDTO.password;
+    newUser.password = await bcrypt.hash(createUserDTO.password, 10);
     newUser.createdAt = new Date();
     return await this.userRepository.save(newUser);
   }
@@ -48,5 +56,29 @@ export class UserService {
       throw new Error(e);
     }
     return true;
+  }
+
+  async setJwtRefreshToken(refreshToken: string, uid: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepository.update(uid, {
+      hashedRefreshToken: hashedRefreshToken,
+    });
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, uid: string) {
+    const user = await this.findOneByID(uid);
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.hashedRefreshToken,
+    );
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(uid: string) {
+    return this.userRepository.update(uid, {
+      hashedRefreshToken: null,
+    });
   }
 }

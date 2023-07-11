@@ -20,6 +20,9 @@ lerna-debug.log*
 .env.test
 .env.production
 
+# 안쓰는 파일
+local.guard.ts
+
 # Tests
 /coverage
 /.nyc_output

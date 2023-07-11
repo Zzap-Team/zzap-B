@@ -28,6 +28,15 @@ import { OauthModule } from './auth/oauth/oauth.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+      context: ({ req, connection }) => {
+        //graphql에게 request를 요청할때 req안으로 jwt토큰이 담깁니다.
+        if (req) {
+          const user = req.headers.authorization;
+          return { ...req, user };
+        } else {
+          return connection;
+        }
+      },
       //playground: false, 주소: http://localhost:3000/graphql
     }),
     UserModule,
@@ -35,7 +44,5 @@ import { OauthModule } from './auth/oauth/oauth.module';
     AuthModule,
     OauthModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

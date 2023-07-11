@@ -1,9 +1,7 @@
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { ApolloError } from 'apollo-server-express';
 import { User } from './schema/user.model';
-
 import { UserService } from './user.service';
-
 import { CreateUserDTO } from './dto/createUser.dto';
 
 @Resolver()
@@ -22,7 +20,7 @@ export class UserResolver {
   @Query((returns) => User)
   async getUser(@Args('uid') uid: string): Promise<User> {
     try {
-      return await this.userService.findOne(uid);
+      return await this.userService.findOneByID(uid);
     } catch (e) {
       throw new ApolloError(e);
     }

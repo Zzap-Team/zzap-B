@@ -7,11 +7,11 @@ export class OauthController {
   constructor(private readonly oauthService: OauthService) {}
 
   @Post('github')
-  public async getGithubInfo(@Body() oauthSigninDTO: OauthSigninDTO) {
-    const user = await this.oauthService.getGithubInfo(oauthSigninDTO);
+  public async getGithubUserInfo(@Body() oauthSigninDTO: OauthSigninDTO) {
+    const user = await this.oauthService.getGithubUserInfo(oauthSigninDTO);
     return {
       status: 200,
-      message: '깃허브 유저 정보를 조회하였습니다.',
+      message: '[get] github user info',
       data: {
         user,
       },

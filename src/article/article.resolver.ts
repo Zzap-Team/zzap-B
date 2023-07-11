@@ -44,7 +44,7 @@ export class ArticleResolver {
   async updateArticle(
     @Args('updateArticleDTO') updateArticleDTO: UpdateArticleDTO,
     @Args('articleID') articleID: string,
-  ): Promise<boolean> {
+  ): Promise<Boolean> {
     try {
       return await this.articleService.update(articleID, updateArticleDTO);
     } catch (e) {
@@ -53,7 +53,7 @@ export class ArticleResolver {
   }
 
   @Mutation((returns) => Boolean)
-  async deleteArticle(@Args('articleID') articleID: string): Promise<boolean> {
+  async deleteArticle(@Args('articleID') articleID: string): Promise<Boolean> {
     try {
       return await this.articleService.delete(articleID);
     } catch (e) {

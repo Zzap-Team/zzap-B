@@ -14,8 +14,8 @@ import { AuthResolver } from './jwtAuth.resolver';
     UserModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      //signOptions: { expiresIn: '1h' },
     }),
   ],
   providers: [AuthService, AuthResolver],

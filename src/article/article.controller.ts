@@ -10,23 +10,19 @@ import {
 import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { ArticleService } from './article.service';
-import { ArticleResolver } from './article.resolver';
 import { Article } from './schema/article.entity';
 
 @Controller('article')
 export class ArticleController {
-  constructor(
-    private readonly articleService: ArticleService,
-    private readonly articleResolver: ArticleResolver,
-  ) {}
+  constructor(private readonly articleService: ArticleService) {}
 
   @Get()
-  getAll(): Promise<Article[]> {
+  getArticleS(): Promise<Article[]> {
     return this.articleService.findAll();
   }
 
   @Get(':articleID')
-  getOne(@Param('articleID') articleID: string): Promise<Article | void> {
+  getArticle(@Param('articleID') articleID: string): Promise<Article | void> {
     return this.articleService.findOne(articleID);
   }
 
@@ -42,7 +38,10 @@ export class ArticleController {
   }
 
   @Patch(':articleID')
-  update(@Param() articleID: string, @Body() article: UpdateArticleDTO) {
+  update(
+    @Param() articleID: string,
+    @Body() article: UpdateArticleDTO,
+  ): Promise<boolean> {
     return this.articleService.update(articleID, article);
   }
 }

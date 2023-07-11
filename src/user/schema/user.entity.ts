@@ -1,11 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import {
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -24,4 +18,8 @@ export class User {
 
   @Column()
   createdAt: Date;
+
+  @Column({ nullable: true })
+  @Exclude()
+  hashedRefreshToken?: string;
 }

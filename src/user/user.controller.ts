@@ -6,27 +6,32 @@ import {
   Param,
   Post,
   UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { User } from './schema/user.entity';
 import { UserService } from './user.service';
-import { AuthGuard } from 'src/auth/jwt/jwtAuth.guard';
+import { AuthGuard } from 'src/auth/jwt/guard/jwtAuth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuard)
   @Get()
-  getAll(): Promise<User[]> {
+  getUsers(): Promise<User[]> {
     return this.userService.findAll();
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':uid')
-  getOne(@Param('uid') uid: string): Promise<User> {
-    return this.userService.findOne(uid);
+  getUser(@Param('uid') uid: string): Promise<User> {
+    return this.userService.findOneByID(uid);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   createUser(@Body() user: CreateUserDTO) {
     return this.userService.create(user);
