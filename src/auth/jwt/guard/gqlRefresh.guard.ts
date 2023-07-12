@@ -7,7 +7,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
 import { RefreshGuard } from './jwtRefresh.guard';
 
-// access token이 유효한지 검사 - gql
+// refresh token이 유효한지 검사 - gql
 @Injectable()
 export class GqlRefreshGurad extends RefreshGuard {
   canActivate(
@@ -19,9 +19,10 @@ export class GqlRefreshGurad extends RefreshGuard {
       throw new UnauthorizedException('Can not find refresh token');
     }
     try {
-      this.jwtService.verify(token, {
+      const { uid } = this.jwtService.verify(token, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
+      request['uid'] = uid;
     } catch {
       throw new UnauthorizedException('Your refresh token is expired');
     }

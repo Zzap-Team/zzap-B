@@ -23,30 +23,14 @@ export class AuthController {
     private userService: UserService,
   ) {}
 
-  /*@HttpCode(HttpStatus.OK)
-  @Post('login')
-  async signIn(@Body() signInDto: SignInDTO, @Res() res: Response) {
-    const { token, ...option } = await this.authService.signIn(signInDto);
-    console.log(token);
-    console.log(option);
-    res.cookie('Authentication', token, option);
-    return;
-  }*/
-
   @HttpCode(HttpStatus.OK)
-  @Post('login')
+  @Post('signin')
   async signIn(
-    @Body() signInDto: SignInDTO,
+    @Body() signInDTO: SignInDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.vaildateUser(signInDto);
-    const { token: accessToken, ...accessOption } =
-      await this.authService.signIn(user.uid);
-
-    const { token: refreshToken, ...refreshOption } =
-      this.authService.getJwtRefreshToken(user.uid);
-    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
-    console.log(accessToken);
+    const { user, accessToken, accessOption, refreshToken, refreshOption } =
+      await this.authService.signIn(signInDTO);
     res.cookie('Authentication', accessToken, accessOption);
     res.cookie('Refresh', refreshToken, refreshOption);
     return user;
@@ -58,16 +42,19 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    //const user = await this.authService.getUserInfoWithAccessToken(req);
     const { token: accessToken, ...accessOption } =
-      this.authService.getJwtAccessTokenWithRefresh(req.cookies?.Refresh);
+      await this.authService.getJwtAccessTokenWithRefresh(req.cookies?.Refresh);
     res.cookie('Authentication', accessToken, accessOption);
   }
 
   @UseGuards(AuthGuard)
-  @Post('logout')
-  async logOut(@Res({ passthrough: true }) res: Response) {
-    const { token, ...option } = await this.authService.signOut();
+  @Post('signout')
+  async signOut(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const uid = req['uid'];
+    const { token, ...option } = await this.authService.signOut(uid);
     res.cookie('Authentication', token, option);
   }
 }

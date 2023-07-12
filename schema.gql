@@ -37,7 +37,6 @@ type Query {
   getUser(uid: String!): User!
   getArticles: [Article!]!
   getArticle(articleID: String!): Article!
-  testQuery: String!
 }
 
 type Mutation {
@@ -46,7 +45,7 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
-  signIn(signInDTO: SignInDTO!): TokenInfo!
+  signin(signInDTO: SignInDTO!): Boolean!
   signOut: TokenInfo!
   refreshToken: TokenInfo!
 }

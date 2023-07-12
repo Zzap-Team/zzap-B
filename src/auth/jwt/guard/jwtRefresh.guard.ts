@@ -26,7 +26,6 @@ export class RefreshGuard implements CanActivate {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
       request['uid'] = uid;
-      console.log(uid);
     } catch {
       throw new UnauthorizedException('Your access token is expired');
     }
@@ -35,7 +34,6 @@ export class RefreshGuard implements CanActivate {
 
   protected extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.cookie?.split('=') ?? [];
-    console.log(request.headers);
     return type === 'Refresh' ? token : undefined;
   }
 }

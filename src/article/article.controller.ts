@@ -19,7 +19,7 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Get()
-  getArticleS(): Promise<Article[]> {
+  getArticles(): Promise<Article[]> {
     return this.articleService.findAll();
   }
 

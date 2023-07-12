@@ -7,36 +7,35 @@ import { SignInDTO } from './dto/signIn.dto';
 import { TokenInfo } from './model/tokenInfo.model';
 import { GqlRefreshGurad } from './guard/gqlRefresh.guard';
 import { AuthToken } from './decorator/AuthToken.decorator';
+import { RefreshToken } from './decorator/RefreshToken.decorator';
+import { User } from 'src/user/schema/user.entity';
+import { Uid } from './decorator/uid.decorator';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation((returns) => TokenInfo)
-  async signIn(@Args('signInDTO') signInDTO: SignInDTO): Promise<TokenInfo> {
+  @Mutation((returns) => Boolean)
+  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<boolean> {
+    // 임시로 bool
     try {
-      return this.authService.signIn(signInDTO);
+      const { user, accessToken, accessOption, refreshToken, refreshOption } =
+        await this.authService.signIn(signInDTO);
+      return true;
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
-  @Query((returns) => String)
-  @UseGuards(GqlAuthGurad)
-  async testQuery(): Promise<String> {
-    return 'dddd';
-  }
-
   @Mutation((returns) => TokenInfo)
   @UseGuards(GqlAuthGurad)
-  async signOut(): Promise<TokenInfo> {
-    return await this.authService.signOut();
+  async signOut(@Uid() uid: string): Promise<TokenInfo> {
+    return await this.authService.signOut(uid);
   }
 
   @Mutation((returns) => TokenInfo)
   @UseGuards(GqlRefreshGurad)
-  async refreshToken(@AuthToken() token: string): Promise<TokenInfo> {
-    console.log('token', token);
+  async refreshToken(@RefreshToken() token: string): Promise<TokenInfo> {
     return await this.authService.getJwtAccessTokenWithRefresh(token);
   }
 }

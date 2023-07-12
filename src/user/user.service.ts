@@ -59,21 +59,25 @@ export class UserService {
   }
 
   async setJwtRefreshToken(refreshToken: string, uid: string) {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const hashedRefreshToken =
+      refreshToken !== '' ? await bcrypt.hash(refreshToken, 10) : '';
     await this.userRepository.update(uid, {
       hashedRefreshToken: hashedRefreshToken,
     });
   }
 
-  async getUserIfRefreshTokenMatches(refreshToken: string, uid: string) {
+  async getUidIfRefreshTokenMatches(
+    refreshToken: string,
+    uid: string,
+  ): Promise<string> {
     const user = await this.findOneByID(uid);
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
       user.hashedRefreshToken,
     );
     if (isRefreshTokenMatching) {
-      return user;
-    }
+      return uid;
+    } else return '';
   }
 
   async removeRefreshToken(uid: string) {

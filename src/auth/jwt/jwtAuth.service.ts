@@ -18,47 +18,44 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async vaildateUser(signInDTO: SignInDTO): Promise<any> {
-    const user = await this.userService.findOneByEmail(signInDTO.email);
-    if (!user) throw new UnauthorizedException('can not find user');
-    const isPasswordMatching = await bcrypt.compareSync(
-      signInDTO.password,
-      user.password,
-    );
-    if (!isPasswordMatching) {
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
+  async signIn(signInDTO: SignInDTO) {
+    const user = await this.vaildateUser(signInDTO);
+    const { token: accessToken, ...accessOption } =
+      await this.getJwtAccessToken(user.uid);
+    const { token: refreshToken, ...refreshOption } =
+      await this.getJwtRefreshToken(user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
+    //console.log('refreshToken', refreshToken);
+    return { user, accessToken, accessOption, refreshToken, refreshOption };
+  }
+
+  async signOut(uid: string) {
+    console.log('uid', uid);
+    await this.userService.setJwtRefreshToken('', uid);
+    return {
+      token: '',
+      httpOnly: true,
+      maxAge: 0,
+    };
+  }
+
+  async getJwtAccessTokenWithRefresh(jwtRefreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(jwtRefreshToken, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      });
+      const { uid } = payload;
+      const temp = await this.userService.getUidIfRefreshTokenMatches(
+        jwtRefreshToken,
+        uid,
+      );
+      if (uid === temp) return this.getJwtAccessToken(uid);
+      else throw new Error();
+    } catch {
+      throw new UnauthorizedException(
+        'Your RefreshToken token does not exist or is expired. Please try sing in again',
       );
     }
-    return user;
-  }
-
-  async getUserInfoWithAccessToken(req: Request): Promise<any> {
-    const [type, token] = req.headers.authorization?.split(' ') ?? [];
-    if (type !== 'Bearer')
-      throw new UnauthorizedException('Can not find access token');
-    try {
-      const { uid } = this.jwtService.verify(token, {
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      });
-      return await this.userService.findOneByID(uid);
-    } catch {
-      throw new UnauthorizedException('Your access token is expired');
-    }
-  }
-
-  async signIn(signInDTO: SignInDTO) {
-    const user = await this.userService.findOneByEmail(signInDTO.email);
-    if (!user) throw new UnauthorizedException();
-    const isPasswordMatching = await bcrypt.compareSync(
-      signInDTO.password,
-      user.password,
-    );
-    if (!isPasswordMatching) {
-      throw new UnauthorizedException();
-    }
-    return await this.getJwtAccessToken(user.uid);
   }
 
   private getJwtAccessToken(uid: String) {
@@ -74,7 +71,7 @@ export class AuthService {
     };
   }
 
-  getJwtRefreshToken(uid: String) {
+  private getJwtRefreshToken(uid: String) {
     const payload = { uid };
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -87,40 +84,19 @@ export class AuthService {
     };
   }
 
-  getJwtAccessTokenWithRefresh(jwtRefreshToken: string) {
-    try {
-      const payload = this.jwtService.verify(jwtRefreshToken, {
-        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      });
-      const { uid } = payload;
-      return this.getJwtAccessToken(uid);
-    } catch {
-      throw new UnauthorizedException(
-        'Your RefreshToken token does not exist or is expired',
+  private async vaildateUser(signInDTO: SignInDTO): Promise<any> {
+    const user = await this.userService.findOneByEmail(signInDTO.email);
+    if (!user) throw new UnauthorizedException('can not find user');
+    const isPasswordMatching = await bcrypt.compareSync(
+      signInDTO.password,
+      user.password,
+    );
+    if (!isPasswordMatching) {
+      throw new HttpException(
+        'Wrong credentials provided',
+        HttpStatus.BAD_REQUEST,
       );
     }
-  }
-
-  async signOut() {
-    return {
-      token: '',
-      httpOnly: true,
-      maxAge: 0,
-    };
-  }
-
-  async verify(jwtString: string) {
-    try {
-      const payload = await this.jwtService.verifyAsync(jwtString, {
-        secret: process.env.JWT_SECRET,
-      });
-      const { uid, name } = payload;
-      return {
-        uid: uid,
-        name: name,
-      };
-    } catch (e) {
-      throw new UnauthorizedException(e);
-    }
+    return user;
   }
 }

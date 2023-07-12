@@ -14,6 +14,7 @@ async function bootstrap() {
       'content-type',
       'accept',
       'authorization',
+      'cookie',
     ],
     // 쿠키, 인증 헤더 등을 사용할 수 있게 할 것인가?
     credentials: true,

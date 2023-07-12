@@ -19,9 +19,10 @@ export class GqlAuthGurad extends AuthGuard {
       throw new UnauthorizedException('Can not find access token');
     }
     try {
-      this.jwtService.verify(token, {
+      const { uid } = this.jwtService.verify(token, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       });
+      request['uid'] = uid;
     } catch {
       throw new UnauthorizedException('Your access token is expired');
     }

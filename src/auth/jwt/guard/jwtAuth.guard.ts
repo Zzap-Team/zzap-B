@@ -17,6 +17,7 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
+
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException('Can not find access token');
@@ -34,7 +35,6 @@ export class AuthGuard implements CanActivate {
 
   protected extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    console.log(request.headers);
     return type === 'Bearer' ? token : undefined;
   }
 }
