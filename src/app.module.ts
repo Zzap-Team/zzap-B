@@ -4,9 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
-import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
+import { UserModule } from './user/user.module';
+import { User } from './user/schema/user.entity';
 import { ArticleModule } from './article/article.module';
+import { AuthModule } from './auth/jwt/jwtAuth.module';
+import { OauthModule } from './auth/oauth/oauth.module';
 
 @Module({
   imports: [
@@ -26,12 +28,22 @@ import { ArticleModule } from './article/article.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
+
+      context: ({ req, connection }) => {
+        //graphql에게 request를 요청할때 req안으로 jwt토큰이 담깁니다.
+        if (req) {
+          const token = req.headers.authorization;
+          return { ...req, token };
+        } else {
+          return connection;
+        }
+      },
       //playground: false, 주소: http://localhost:3000/graphql
     }),
-    UsersModule,
+    UserModule,
     ArticleModule,
+    AuthModule,
+    OauthModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

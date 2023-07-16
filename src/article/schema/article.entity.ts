@@ -8,8 +8,7 @@ import {
 
 @Entity({ name: 'article' })
 export class Article {
-  //Primary Key & auto increment
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   articleID: string;
 
   // DOTO: ManyToOne Relation implement

@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +14,7 @@ async function bootstrap() {
       'content-type',
       'accept',
       'authorization',
+      'cookie',
     ],
     // 쿠키, 인증 헤더 등을 사용할 수 있게 할 것인가?
     credentials: true,
@@ -19,6 +22,9 @@ async function bootstrap() {
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
+  app.use(cookieParser());
+  // validation 데코레이터가 붙어있는 프로퍼티에 대한 유효성 검증
+  app.useGlobalPipes(new ValidationPipe({ transform: true })); // 1
   await app.listen(3000);
 }
 bootstrap();

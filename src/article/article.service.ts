@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { Article } from './article.entity';
+import { Article } from './schema/article.entity';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 
@@ -33,7 +33,7 @@ export class ArticleService {
 
   async delete(articleID: string): Promise<boolean> {
     try {
-      await this.articleRepository.delete(articleID);
+      await !!this.articleRepository.delete(articleID);
     } catch (e) {
       throw new Error(e);
     }
@@ -41,19 +41,14 @@ export class ArticleService {
   }
 
   async update(articleID: string, article: UpdateArticleDTO): Promise<boolean> {
-    /* update query를 날릴 때 save를 사용하지 않는 이유
-         => save는 select query와 update query 둘 다 날림 -> 느려
-        */
-
     try {
-      await this.articleRepository.update(articleID, {
+      return !!(await this.articleRepository.update(articleID, {
         content: article.content,
         title: article.content,
         updatedAt: new Date(),
-      });
+      }));
     } catch (e) {
       throw new Error(e);
     }
-    return true;
   }
 }
