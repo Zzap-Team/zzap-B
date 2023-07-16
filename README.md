@@ -29,3 +29,216 @@
 | GET    | /auth/refresh  |               | accessToken재발급(refreshToken 쿠키 필요) |
 | POST   | /auth/signout  | CreateUserDTO | 로그아웃                                  |
 | DELETE | /uauthser/:uid |               | 사용자 삭제                               |
+
+## 2. Graphql
+
+### Article
+
+- getArticles: 모든 글 조회
+
+```
+query{
+  getArticles{
+    articleID
+    title
+    content
+    createdAt
+    updatedAt
+    author {
+      uid
+      name
+      email
+    }
+  }
+}
+```
+
+- getArticle: 글 조회
+
+```
+query{
+  getArticle(articleID: "articleid") {
+    articleID
+    title
+    content
+    createdAt
+    updatedAt
+    author {
+      uid
+      name
+      email
+    }
+  }
+}
+```
+
+- createArticle: 글 생성(로그인 필요)
+
+```
+mutation{
+  createArticle(createArticleDTO :{title: "title", content: "content"}) {
+    articleID
+    title
+    content
+    createdAt
+    updatedAt
+    author {
+      uid
+      name
+      email
+    }
+  }
+}
+```
+
+- updateArticle: 글 업데이트(로그인 필요)
+
+```
+mutation{
+  updateArticle(updateArticleDTO :{title: "title", content: "content"}, articleID: "id") {
+    articleID
+    title
+    content
+    createdAt
+    updatedAt
+    author {
+      uid
+      name
+      email
+    }
+  }
+}
+```
+
+- deleteArticle: 글 삭제(로그인 필요)
+
+```
+mutation{
+  deleteArticle(articleID: "id")
+}
+```
+
+### User
+
+- getUsers: 모든 유저 조회
+
+```
+query{
+  getUsers{
+    uid
+    name
+    email
+    password
+    createdAt
+    getArticles{
+      articleID
+      title
+      content
+    }
+  }
+}
+```
+
+- getUser: 유저 조회
+
+```
+query{
+  getUser(uid: "uid"){
+    uid
+    name
+    email
+    password
+    createdAt
+    getArticles{
+      articleID
+      title
+      content
+    }
+  }
+}
+```
+
+- getMe: 본인 정보 조회(로그인필요)
+
+```
+query{
+  getMe{
+    uid
+    name
+    email
+    password
+    createdAt
+    getArticles{
+      articleID
+      title
+      content
+    }
+  }
+}
+```
+
+- createUser: 유저 생성
+
+```
+/*
+name: 2~30글자
+email: 이메일형태로 이루어진 60글자 이내
+password: 영문대소문자, 숫자, 특수문자로 이루어진 8~30글자
+*/
+mutation{
+  createUser(createUserDTO: {name: "name", email: "email", password: "password"}){
+    uid
+    name
+    email
+    password
+    createdAt
+    getArticles{
+      articleID
+      title
+      content
+    }
+  }
+}
+```
+
+- deleteUser: 회원 탈퇴(로그인 필요)
+
+```
+mutation{
+  deleteUser
+}
+```
+
+### Auth(JWT)
+
+- signin: 로그인
+
+```
+mutation{
+  signin(signInDTO: {email: "email", password: "password"})
+}
+```
+
+- signOut: 로그아웃(로그인 필요)
+
+```
+mutation{
+  signout{
+    token
+    httpOnly
+    maxAge
+  }
+}
+```
+
+- refreshToken: accesstoekn발급(cookie에 refresh token 필요)
+
+```
+mutation{
+  refreshToken{
+    token
+    httpOnly
+    maxAge
+  }
+}
+```
