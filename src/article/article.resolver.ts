@@ -1,13 +1,22 @@
-import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
+import {
+  Query,
+  Resolver,
+  Args,
+  Mutation,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { Article } from './schema/article.model';
+import { Article } from '../model/article.model';
 import { ApolloError } from 'apollo-server-express';
 import { ArticleService } from './article.service';
 import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
+import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
+import { User } from 'src/model/user.model';
 
-@Resolver()
+@Resolver((returns) => Article)
 export class ArticleResolver {
   constructor(private readonly articleService: ArticleService) {}
 
@@ -33,10 +42,11 @@ export class ArticleResolver {
   @Mutation((returns) => Article)
   async createArticle(
     @Args('createArticleDTO') createArticleDTO: CreateArticleDTO,
+    @Uid() uid: string,
   ): Promise<Article> {
     try {
       console.log(createArticleDTO);
-      return await this.articleService.create(createArticleDTO);
+      return await this.articleService.create(uid, createArticleDTO);
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -63,5 +73,12 @@ export class ArticleResolver {
     } catch (e) {
       throw new ApolloError(e);
     }
+  }
+
+  // TODO: Apply Dataloader
+  @ResolveField((returns) => User)
+  async getAuthor(@Parent() article: Article) {
+    const author = article.author;
+    return author;
   }
 }

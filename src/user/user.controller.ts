@@ -10,7 +10,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/createUser.dto';
-import { User } from './schema/user.entity';
+import { User } from '../model/user.entity';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth/jwt/guard/jwtAuth.guard';
 

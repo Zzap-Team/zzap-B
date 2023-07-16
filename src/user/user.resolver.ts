@@ -1,12 +1,27 @@
-import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
+import {
+  Query,
+  Resolver,
+  Args,
+  Mutation,
+  Parent,
+  ResolveField,
+} from '@nestjs/graphql';
 import { ApolloError } from 'apollo-server-express';
-import { User } from './schema/user.model';
+import { UseGuards } from '@nestjs/common';
+import { User } from '../model/user.model';
+import { Article } from 'src/model/article.model';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/createUser.dto';
+import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
+import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
+import { ArticleService } from 'src/article/article.service';
 
-@Resolver()
+@Resolver((returns) => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly articleService: ArticleService,
+  ) {}
 
   @Query((returns) => [User])
   async getUsers() {
@@ -26,6 +41,16 @@ export class UserResolver {
     }
   }
 
+  @UseGuards(GqlAuthGurad)
+  @Query((reutrns) => User)
+  async getMe(@Uid() uid: string): Promise<User> {
+    try {
+      return await this.userService.findOneByID(uid);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
   @Mutation((returns) => User)
   async createUser(
     @Args('createUserDTO') createUserDTO: CreateUserDTO,
@@ -37,12 +62,20 @@ export class UserResolver {
     }
   }
 
+  @UseGuards(GqlAuthGurad)
   @Mutation((returns) => Boolean)
-  async deleteUser(@Args('uid') uid: string): Promise<boolean> {
+  async deleteUser(@Uid() uid: string): Promise<boolean> {
     try {
       return await this.userService.delete(uid);
     } catch (e) {
       throw new ApolloError(e);
     }
+  }
+
+  // TODO: Apply Dataloader
+  @ResolveField((returns) => [Article])
+  async getArticles(@Parent() user: User) {
+    const { uid } = user;
+    return await this.articleService.findAllByUid(uid);
   }
 }

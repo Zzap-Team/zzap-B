@@ -8,7 +8,7 @@ import { TokenInfo } from './model/tokenInfo.model';
 import { GqlRefreshGurad } from './guard/gqlRefresh.guard';
 import { AuthToken } from './decorator/AuthToken.decorator';
 import { RefreshToken } from './decorator/RefreshToken.decorator';
-import { User } from 'src/user/schema/user.entity';
+import { User } from 'src/model/user.entity';
 import { Uid } from './decorator/uid.decorator';
 
 @Resolver()

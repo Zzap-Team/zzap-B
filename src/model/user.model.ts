@@ -1,4 +1,6 @@
+// user graphql model
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Article } from './article.model';
 
 @ObjectType({ description: 'user' })
 export class User {
@@ -16,4 +18,7 @@ export class User {
 
   @Field()
   createdAt: Date;
+
+  @Field(() => [Article], { nullable: true })
+  articles: Article[];
 }

@@ -2,20 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""user"""
-type User {
-  uid: ID!
-  name: String!
-  email: String!
-  password: String!
-  createdAt: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 """article"""
 type Article {
   articleID: ID!
@@ -23,6 +9,24 @@ type Article {
   content: String
   createdAt: DateTime!
   updatedAt: DateTime!
+  author: User
+  getAuthor: User!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""user"""
+type User {
+  uid: ID!
+  name: String!
+  email: String!
+  password: String!
+  createdAt: DateTime!
+  articles: [Article!]
+  getArticles: [Article!]!
 }
 
 """tokenInfo"""
@@ -35,13 +39,14 @@ type TokenInfo {
 type Query {
   getUsers: [User!]!
   getUser(uid: String!): User!
+  getMe: User!
   getArticles: [Article!]!
   getArticle(articleID: String!): Article!
 }
 
 type Mutation {
   createUser(createUserDTO: CreateUserDTO!): User!
-  deleteUser(uid: String!): Boolean!
+  deleteUser: Boolean!
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
