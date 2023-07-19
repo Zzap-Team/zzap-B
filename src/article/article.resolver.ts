@@ -20,7 +20,7 @@ import { User } from 'src/model/user.model';
 export class ArticleResolver {
   constructor(private readonly articleService: ArticleService) {}
 
-  @Query((returns) => [Article])
+  @Query((returns) => [Article], { name: 'articles' })
   async getArticles() {
     try {
       return this.articleService.findAll();
@@ -29,7 +29,7 @@ export class ArticleResolver {
     }
   }
 
-  @Query((returns) => Article)
+  @Query((returns) => Article, { name: 'article' })
   async getArticle(@Args('articleID') articleID: string) {
     try {
       return await this.articleService.findOne(articleID);
@@ -76,7 +76,7 @@ export class ArticleResolver {
   }
 
   // TODO: Apply Dataloader
-  @ResolveField((returns) => User)
+  @ResolveField('author', (returns) => User)
   async getAuthor(@Parent() article: Article) {
     const author = article.author;
     return author;

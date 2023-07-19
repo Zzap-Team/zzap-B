@@ -29,7 +29,7 @@ export class AuthResolver {
 
   @Mutation((returns) => TokenInfo)
   @UseGuards(GqlAuthGurad)
-  async signOut(@Uid() uid: string): Promise<TokenInfo> {
+  async signout(@Uid() uid: string): Promise<TokenInfo> {
     return await this.authService.signOut(uid);
   }
 

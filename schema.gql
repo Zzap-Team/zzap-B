@@ -9,8 +9,7 @@ type Article {
   content: String
   createdAt: DateTime!
   updatedAt: DateTime!
-  author: User
-  getAuthor: User!
+  author: User!
 }
 
 """
@@ -25,8 +24,7 @@ type User {
   email: String
   password: String
   createdAt: DateTime!
-  articles: [Article!]
-  getArticles: [Article!]!
+  articles: [Article!]!
 }
 
 """tokenInfo"""
@@ -37,11 +35,11 @@ type TokenInfo {
 }
 
 type Query {
-  getUsers: [User!]!
-  getUser(uid: String!): User!
-  getMe: User!
-  getArticles: [Article!]!
-  getArticle(articleID: String!): Article!
+  users: [User!]!
+  user(uid: String!): User!
+  me: User!
+  articles: [Article!]!
+  article(articleID: String!): Article!
 }
 
 type Mutation {
@@ -51,7 +49,7 @@ type Mutation {
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
   signin(signInDTO: SignInDTO!): Boolean!
-  signOut: TokenInfo!
+  signout: TokenInfo!
   refreshToken: TokenInfo!
   githubSignin(oauthSigninDTO: OauthSigninDTO!): String!
 }

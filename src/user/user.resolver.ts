@@ -23,7 +23,7 @@ export class UserResolver {
     private readonly articleService: ArticleService,
   ) {}
 
-  @Query(() => [User])
+  @Query(() => [User], { name: 'users' })
   async getUsers() {
     try {
       return this.userService.findAll();
@@ -32,7 +32,7 @@ export class UserResolver {
     }
   }
 
-  @Query(() => User)
+  @Query(() => User, { name: 'user' })
   async getUser(@Args('uid') uid: string): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
@@ -42,7 +42,7 @@ export class UserResolver {
   }
 
   @UseGuards(GqlAuthGurad)
-  @Query(() => User)
+  @Query(() => User, { name: 'me' })
   async getMe(@Uid() uid: string): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
@@ -73,7 +73,7 @@ export class UserResolver {
   }
 
   // TODO: Apply Dataloader
-  @ResolveField(() => [Article])
+  @ResolveField('articles', () => [Article])
   async getArticles(@Parent() user: User) {
     const { uid } = user;
     return await this.articleService.findAllByUid(uid);

@@ -40,11 +40,11 @@
 
 ### Article
 
-- getArticles: 모든 글 조회
+- articles: 모든 글 조회
 
 ```
 query{
-  getArticles{
+  articles{
     articleID
     title
     content
@@ -59,11 +59,11 @@ query{
 }
 ```
 
-- getArticle: 글 조회
+- article: 글 조회
 
 ```
 query{
-  getArticle(articleID: "articleid") {
+  article(articleID: "articleid") {
     articleID
     title
     content
@@ -126,17 +126,17 @@ mutation{
 
 ### User
 
-- getUsers: 모든 유저 조회
+- users: 모든 유저 조회
 
 ```
 query{
-  getUsers{
+  users{
     uid
     name
     email
     password
     createdAt
-    getArticles{
+    articles{
       articleID
       title
       content
@@ -145,17 +145,17 @@ query{
 }
 ```
 
-- getUser: 유저 조회
+- user: 유저 조회
 
 ```
 query{
-  getUser(uid: "uid"){
+  user(uid: "uid"){
     uid
     name
     email
     password
     createdAt
-    getArticles{
+    articles{
       articleID
       title
       content
@@ -164,17 +164,17 @@ query{
 }
 ```
 
-- getMe: 본인 정보 조회(로그인필요)
+- me: 본인 정보 조회(로그인필요)
 
 ```
 query{
-  getMe{
+  me{
     uid
     name
     email
     password
     createdAt
-    getArticles{
+    articles{
       articleID
       title
       content
@@ -198,7 +198,7 @@ mutation{
     email
     password
     createdAt
-    getArticles{
+    articles{
       articleID
       title
       content
