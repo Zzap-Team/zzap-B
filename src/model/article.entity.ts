@@ -1,18 +1,18 @@
+// article typeorm model
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity({ name: 'article' })
 export class Article {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   articleID: string;
-
-  // DOTO: ManyToOne Relation implement
-  //author: User;
 
   @Column({ type: 'varchar', length: 255 })
   title: string;
@@ -25,4 +25,7 @@ export class Article {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne((type) => User, (user) => user.articles, { onDelete: 'SET NULL' })
+  author: User;
 }

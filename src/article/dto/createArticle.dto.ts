@@ -1,5 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsOptional, MaxLength } from 'class-validator';
+import { User } from 'src/model/user.model';
 
 @InputType()
 export class CreateArticleDTO {

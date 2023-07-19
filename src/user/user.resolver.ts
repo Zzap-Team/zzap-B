@@ -1,14 +1,29 @@
-import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
+import {
+  Query,
+  Resolver,
+  Args,
+  Mutation,
+  Parent,
+  ResolveField,
+} from '@nestjs/graphql';
 import { ApolloError } from 'apollo-server-express';
-import { User } from './schema/user.model';
+import { UseGuards } from '@nestjs/common';
+import { User } from '../model/user.model';
+import { Article } from 'src/model/article.model';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/createUser.dto';
+import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
+import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
+import { ArticleService } from 'src/article/article.service';
 
-@Resolver()
+@Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly articleService: ArticleService,
+  ) {}
 
-  @Query((returns) => [User])
+  @Query(() => [User], { name: 'users' })
   async getUsers() {
     try {
       return this.userService.findAll();
@@ -17,7 +32,7 @@ export class UserResolver {
     }
   }
 
-  @Query((returns) => User)
+  @Query(() => User, { name: 'user' })
   async getUser(@Args('uid') uid: string): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
@@ -26,7 +41,17 @@ export class UserResolver {
     }
   }
 
-  @Mutation((returns) => User)
+  @UseGuards(GqlAuthGurad)
+  @Query(() => User, { name: 'me' })
+  async getMe(@Uid() uid: string): Promise<User> {
+    try {
+      return await this.userService.findOneByID(uid);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  @Mutation(() => User)
   async createUser(
     @Args('createUserDTO') createUserDTO: CreateUserDTO,
   ): Promise<User> {
@@ -37,12 +62,20 @@ export class UserResolver {
     }
   }
 
-  @Mutation((returns) => Boolean)
-  async deleteUser(@Args('uid') uid: string): Promise<boolean> {
+  @UseGuards(GqlAuthGurad)
+  @Mutation(() => Boolean)
+  async deleteUser(@Uid() uid: string): Promise<boolean> {
     try {
       return await this.userService.delete(uid);
     } catch (e) {
       throw new ApolloError(e);
     }
+  }
+
+  // TODO: Apply Dataloader
+  @ResolveField('articles', () => [Article])
+  async getArticles(@Parent() user: User) {
+    const { uid } = user;
+    return await this.articleService.findAllByUid(uid);
   }
 }

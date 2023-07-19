@@ -1,4 +1,6 @@
+// article graphql model
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { User } from './user.model';
 
 @ObjectType({ description: 'article' })
 export class Article {
@@ -16,4 +18,7 @@ export class Article {
 
   @Field()
   updatedAt: Date;
+
+  @Field(() => User, { nullable: true })
+  author: User;
 }

@@ -5,7 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 import { UserModule } from './user/user.module';
-import { User } from './user/schema/user.entity';
+import { User } from './model/user.entity';
 import { ArticleModule } from './article/article.module';
 import { AuthModule } from './auth/jwt/jwtAuth.module';
 import { OauthModule } from './auth/oauth/oauth.module';

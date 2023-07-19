@@ -7,11 +7,12 @@ import {
   Patch,
   Post,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { ArticleService } from './article.service';
-import { Article } from './schema/article.entity';
+import { Article } from '../model/article.entity';
 import { AuthGuard } from 'src/auth/jwt/guard/jwtAuth.guard';
 
 @Controller('article')
@@ -30,9 +31,10 @@ export class ArticleController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() article: CreateArticleDTO) {
+  create(@Req() req: Request, @Body() article: CreateArticleDTO) {
     console.log(article);
-    return this.articleService.create(article);
+    const uid = req['uid'];
+    return this.articleService.create(uid, article);
   }
 
   @UseGuards(AuthGuard)
