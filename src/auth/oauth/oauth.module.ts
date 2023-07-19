@@ -3,6 +3,7 @@ import { OauthService } from './oauth.service';
 import { OauthController } from './oauth.controller';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from 'src/user/user.module';
+import { OauthResolver } from './oauth.resolver';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { UserModule } from 'src/user/user.module';
     }),
     UserModule,
   ],
-  providers: [OauthService],
+  providers: [OauthService, OauthResolver],
   controllers: [OauthController],
 })
 export class OauthModule {}

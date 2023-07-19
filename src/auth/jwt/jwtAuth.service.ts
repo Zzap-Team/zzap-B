@@ -8,7 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signIn.dto';
-import { TokenInfo } from './model/tokenInfo.model';
 import { Request } from 'express';
 
 @Injectable()
@@ -30,7 +29,6 @@ export class AuthService {
   }
 
   async signOut(uid: string) {
-    console.log('uid', uid);
     await this.userService.setJwtRefreshToken('', uid);
     return {
       token: '',
@@ -85,7 +83,7 @@ export class AuthService {
   }
 
   private async vaildateUser(signInDTO: SignInDTO): Promise<any> {
-    const user = await this.userService.findOneByEmail(signInDTO.email);
+    const user = await this.userService.findOneByName(signInDTO.name);
     if (!user) throw new UnauthorizedException('can not find user');
     const isPasswordMatching = await bcrypt.compareSync(
       signInDTO.password,

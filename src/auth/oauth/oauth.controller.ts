@@ -1,4 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { OauthService } from './oauth.service';
 import { OauthSigninDTO } from './dto/oauthSignin.dto';
 
@@ -6,15 +7,15 @@ import { OauthSigninDTO } from './dto/oauthSignin.dto';
 export class OauthController {
   constructor(private readonly oauthService: OauthService) {}
 
-  @Post('github')
-  public async getGithubUserInfo(@Body() oauthSigninDTO: OauthSigninDTO) {
-    const user = await this.oauthService.getGithubUserInfo(oauthSigninDTO);
-    return {
-      status: 200,
-      message: '[get] github user info',
-      data: {
-        user,
-      },
-    };
+  @Post('github/signin')
+  public async githubSignin(
+    @Res({ passthrough: true }) res: Response,
+    @Body() oauthSigninDTO: OauthSigninDTO,
+  ) {
+    const { user, accessToken } = await this.oauthService.githubSignin(
+      oauthSigninDTO,
+    );
+    res.cookie('Authentication', accessToken);
+    return user;
   }
 }

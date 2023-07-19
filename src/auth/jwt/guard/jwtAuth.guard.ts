@@ -22,6 +22,11 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException('Can not find access token');
     }
+    /* TODO:
+    1. separate userEntity and tokenEntity in TypeORM(tokenEntity has token, tokenType).
+    2. find tokenType to use findOne Query in tokenEntity.
+    3. implement verification user logic for each token type. 
+    */
     try {
       const { uid } = this.jwtService.verify(token, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,

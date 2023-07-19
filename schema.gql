@@ -22,8 +22,8 @@ scalar DateTime
 type User {
   uid: ID!
   name: String!
-  email: String!
-  password: String!
+  email: String
+  password: String
   createdAt: DateTime!
   articles: [Article!]
   getArticles: [Article!]!
@@ -53,6 +53,7 @@ type Mutation {
   signin(signInDTO: SignInDTO!): Boolean!
   signOut: TokenInfo!
   refreshToken: TokenInfo!
+  githubSignin(oauthSigninDTO: OauthSigninDTO!): String!
 }
 
 input CreateUserDTO {
@@ -72,6 +73,10 @@ input UpdateArticleDTO {
 }
 
 input SignInDTO {
-  email: String!
+  name: String!
   password: String!
+}
+
+input OauthSigninDTO {
+  code: String!
 }

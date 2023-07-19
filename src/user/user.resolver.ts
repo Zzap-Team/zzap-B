@@ -16,14 +16,14 @@ import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
 import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
 import { ArticleService } from 'src/article/article.service';
 
-@Resolver((returns) => User)
+@Resolver(() => User)
 export class UserResolver {
   constructor(
     private readonly userService: UserService,
     private readonly articleService: ArticleService,
   ) {}
 
-  @Query((returns) => [User])
+  @Query(() => [User])
   async getUsers() {
     try {
       return this.userService.findAll();
@@ -32,7 +32,7 @@ export class UserResolver {
     }
   }
 
-  @Query((returns) => User)
+  @Query(() => User)
   async getUser(@Args('uid') uid: string): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
@@ -42,7 +42,7 @@ export class UserResolver {
   }
 
   @UseGuards(GqlAuthGurad)
-  @Query((reutrns) => User)
+  @Query(() => User)
   async getMe(@Uid() uid: string): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
@@ -51,7 +51,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation((returns) => User)
+  @Mutation(() => User)
   async createUser(
     @Args('createUserDTO') createUserDTO: CreateUserDTO,
   ): Promise<User> {
@@ -63,7 +63,7 @@ export class UserResolver {
   }
 
   @UseGuards(GqlAuthGurad)
-  @Mutation((returns) => Boolean)
+  @Mutation(() => Boolean)
   async deleteUser(@Uid() uid: string): Promise<boolean> {
     try {
       return await this.userService.delete(uid);
@@ -73,7 +73,7 @@ export class UserResolver {
   }
 
   // TODO: Apply Dataloader
-  @ResolveField((returns) => [Article])
+  @ResolveField(() => [Article])
   async getArticles(@Parent() user: User) {
     const { uid } = user;
     return await this.articleService.findAllByUid(uid);

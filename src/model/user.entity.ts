@@ -12,10 +12,10 @@ export class User {
   @Column({ unique: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
-  @Column({ unique: true })
+  @Column({ nullable: true })
   email: string;
 
   @Column()
@@ -23,7 +23,11 @@ export class User {
 
   @Column({ nullable: true })
   @Exclude()
-  hashedRefreshToken?: string;
+  token?: string;
+
+  @Column({ nullable: true })
+  @Exclude()
+  isRefresh?: boolean;
 
   @OneToMany((type) => Article, (article) => article.author, { nullable: true })
   articles: Article[];

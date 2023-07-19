@@ -21,8 +21,8 @@ export class UserService {
     return await this.userRepository.findOneBy({ uid: uid });
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ email: email });
+  async findOneByName(name: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ name: name });
     if (user) {
       return user;
     }
@@ -32,21 +32,21 @@ export class UserService {
     );
   }
 
-  private async exist(email: string): Promise<boolean> {
-    return !!(await this.userRepository.findOneBy({ email: email }));
+  private async exist(name: string): Promise<boolean> {
+    return !!(await this.userRepository.findOneBy({ name: name }));
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
-    const isExist = await this.exist(createUserDTO.email);
-    if (isExist) throw new Error('Error: This account already exists');
-
+    const isExist = await this.exist(createUserDTO.name);
+    if (isExist) throw new Error('Error: This account already exists.');
     newUser.uid = uuidv4();
     newUser.name = createUserDTO.name;
-    newUser.email = createUserDTO.email;
-    newUser.password = await bcrypt.hash(createUserDTO.password, 10);
     newUser.createdAt = new Date();
     newUser.articles = null;
+    newUser.email = createUserDTO.email;
+    if (createUserDTO.password === null) newUser.password = null;
+    else newUser.password = await bcrypt.hash(createUserDTO.password, 10);
     return await this.userRepository.save(newUser);
   }
 
@@ -63,7 +63,18 @@ export class UserService {
     const hashedRefreshToken =
       refreshToken !== '' ? await bcrypt.hash(refreshToken, 10) : '';
     await this.userRepository.update(uid, {
-      hashedRefreshToken: hashedRefreshToken,
+      token: hashedRefreshToken,
+      isRefresh: true,
+    });
+  }
+
+  async setOauthToken(token: string, uid: string) {
+    // JWT로 변환해서 저장해야하나??
+    await this.userRepository.update(uid, {
+      token: token,
+    });
+    await this.userRepository.update(uid, {
+      isRefresh: false,
     });
   }
 
@@ -74,7 +85,7 @@ export class UserService {
     const user = await this.findOneByID(uid);
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user.hashedRefreshToken,
+      user.token,
     );
     if (isRefreshTokenMatching) {
       return uid;
@@ -83,7 +94,8 @@ export class UserService {
 
   async removeRefreshToken(uid: string) {
     return this.userRepository.update(uid, {
-      hashedRefreshToken: null,
+      token: null,
+      isRefresh: null,
     });
   }
 }
