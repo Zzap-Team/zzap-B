@@ -18,11 +18,7 @@ export class UserService {
   }
 
   async findOneByID(uid: string): Promise<User> {
-    return await this.userRepository.findOneBy({ uid: uid });
-  }
-
-  async findOneByName(name: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ name: name });
+    const user = await this.userRepository.findOneBy({ uid: uid });
     if (user) {
       return user;
     }
@@ -32,15 +28,42 @@ export class UserService {
     );
   }
 
-  private async exist(name: string): Promise<boolean> {
-    return !!(await this.userRepository.findOneBy({ name: name }));
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ email: email });
+    if (user) {
+      return user;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  private async exist(email: string): Promise<boolean> {
+    return !!(await this.userRepository.findOneBy({ email: email }));
   }
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
-    const isExist = await this.exist(createUserDTO.name);
+    const isExist = await this.exist(createUserDTO.email);
     if (isExist) throw new Error('Error: This account already exists.');
     newUser.uid = uuidv4();
+    newUser.name = createUserDTO.name;
+    newUser.createdAt = new Date();
+    newUser.articles = null;
+    newUser.email = createUserDTO.email;
+    newUser.password = await bcrypt.hash(createUserDTO.password, 10);
+    return await this.userRepository.save(newUser);
+  }
+
+  async createWithUid(
+    createUserDTO: CreateUserDTO,
+    uid: string,
+  ): Promise<User> {
+    const newUser = new User();
+    const isExist = await this.exist(createUserDTO.email);
+    if (isExist) throw new Error('Error: This account already exists.');
+    newUser.uid = uid;
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
     newUser.articles = null;
@@ -63,18 +86,14 @@ export class UserService {
     const hashedRefreshToken =
       refreshToken !== '' ? await bcrypt.hash(refreshToken, 10) : '';
     await this.userRepository.update(uid, {
-      token: hashedRefreshToken,
-      isRefresh: true,
+      hashedRefreshToken: hashedRefreshToken,
     });
   }
 
   async setOauthToken(token: string, uid: string) {
     // JWT로 변환해서 저장해야하나??
     await this.userRepository.update(uid, {
-      token: token,
-    });
-    await this.userRepository.update(uid, {
-      isRefresh: false,
+      hashedRefreshToken: token,
     });
   }
 
@@ -85,7 +104,7 @@ export class UserService {
     const user = await this.findOneByID(uid);
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user.token,
+      user.hashedRefreshToken,
     );
     if (isRefreshTokenMatching) {
       return uid;
@@ -94,8 +113,7 @@ export class UserService {
 
   async removeRefreshToken(uid: string) {
     return this.userRepository.update(uid, {
-      token: null,
-      isRefresh: null,
+      hashedRefreshToken: null,
     });
   }
 }

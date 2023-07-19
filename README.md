@@ -221,7 +221,7 @@ mutation{
 
 ```
 mutation{
-  signin(signInDTO: {name: "name", password: "password"})
+  signin(signInDTO: {email: "email", password: "password"})
 }
 ```
 
@@ -251,10 +251,10 @@ mutation{
 
 ### Oauth(github)
 
-- githubSignin: 로그인
+- signinWithGithub: 로그인
 
 ```
 mutation{
-  githubSignin(oauthSigninDTO: {code: "code"})
+  signinWithGithub(oauthSigninDTO: {code: "code"})
 }
 ```

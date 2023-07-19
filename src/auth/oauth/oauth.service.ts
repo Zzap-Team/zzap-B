@@ -1,23 +1,31 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { OauthSigninDTO } from './dto/oauthSignin.dto';
 import axios, { AxiosResponse } from 'axios';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/model/user.entity';
+import { AuthService } from '../auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class OauthService {
-  constructor(private userService: UserService) {}
+export class OauthService extends AuthService {
+  constructor(
+    protected userService: UserService,
+    protected jwtService: JwtService,
+  ) {
+    super(userService, jwtService);
+  }
 
   public async githubSignin(oauthSigninDTO: OauthSigninDTO) {
     const { code } = oauthSigninDTO;
-    const accessToken = await this.getAccessToken(code);
+    const access_token = await this.getAccessToken(code);
     const getUserUrl: string = 'https://api.github.com/user';
     const { data } = await axios.get(getUserUrl, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${access_token}`,
       },
     });
     const { login, avatar_url, email, node_id, created_at } = data;
+    let message = 'success';
     /*const githubInfo: GithubUserDTO = {
       githubId: login,
       avatar: avatar_url,
@@ -26,22 +34,41 @@ export class OauthService {
       email: email,
     };*/
     let user: User = new User();
-    console.log(accessToken, login);
+    if (email === null) {
+      throw new HttpException(
+        'User Email does not exist. please signin to anothor method.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     try {
-      user = await this.userService.findOneByName(login);
+      user = await this.userService.findOneByEmail(email);
     } catch (exception) {
       console.log(exception);
       if (exception.status == 404) {
-        user = await this.userService.create({
-          name: login,
-          email: email,
-          password: null,
-        });
+        user = await this.userService.createWithUid(
+          {
+            name: login,
+            email: email,
+            password: null,
+          },
+          node_id,
+        );
       }
     }
 
-    await this.userService.setOauthToken(accessToken, user.uid);
-    return { user, accessToken };
+    const { token: accessToken, ...accessOption } =
+      await this.getJwtAccessToken(user.uid);
+    const { token: refreshToken, ...refreshOption } =
+      await this.getJwtRefreshToken(user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
+    return {
+      message,
+      user,
+      accessToken,
+      accessOption,
+      refreshToken,
+      refreshOption,
+    };
   }
 
   private async getAccessToken(code: string): Promise<string> {

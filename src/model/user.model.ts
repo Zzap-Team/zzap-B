@@ -8,10 +8,10 @@ export class User {
   uid: string;
 
   @Field()
-  name: string;
-
-  @Field({ nullable: true })
   email: string;
+
+  @Field()
+  name: string;
 
   @Field({ nullable: true })
   password: string;

@@ -1,7 +1,7 @@
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ApolloError } from 'apollo-server-express';
-import { AuthService } from './jwtAuth.service';
+import { JwtAuthService } from './jwtAuth.service';
 import { GqlAuthGurad } from './guard/gqlAuth.guard';
 import { SignInDTO } from './dto/signIn.dto';
 import { TokenInfo } from './model/tokenInfo.model';
@@ -13,7 +13,7 @@ import { Uid } from './decorator/uid.decorator';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: JwtAuthService) {}
 
   @Mutation((returns) => Boolean)
   async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<boolean> {

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './jwtAuth.service';
+import { JwtAuthService } from './jwtAuth.service';
 import { AuthController } from './jwtAuth.controller';
 import { UserModule } from 'src/user/user.module';
 import { AuthResolver } from './jwtAuth.resolver';
@@ -18,8 +18,8 @@ import { AuthResolver } from './jwtAuth.resolver';
       //signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [AuthService, AuthResolver],
+  providers: [JwtAuthService, AuthResolver],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [JwtAuthService],
 })
 export class AuthModule {}

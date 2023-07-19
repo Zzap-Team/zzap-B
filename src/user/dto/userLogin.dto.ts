@@ -1,13 +1,20 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsString, Matches, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  Matches,
+  MinLength,
+  MaxLength,
+  IsEmail,
+} from 'class-validator';
 
 @InputType()
 export class UserLoginDTO {
   @Field()
   @IsString()
+  @IsEmail()
   @MinLength(2)
   @MaxLength(30)
-  name: string;
+  email: string;
 
   @Field()
   @IsString()

@@ -7,15 +7,14 @@ import { OauthSigninDTO } from './dto/oauthSignin.dto';
 export class OauthResolver {
   constructor(private readonly oauthService: OauthService) {}
 
-  @Mutation(() => String)
-  async githubSignin(
+  @Mutation(() => Boolean)
+  async signinWithGithub(
     @Args('oauthSigninDTO') oauthSigninDTO: OauthSigninDTO,
-  ): Promise<string> {
+  ): Promise<boolean> {
     try {
-      const { user, accessToken } = await this.oauthService.githubSignin(
-        oauthSigninDTO,
-      );
-      return accessToken;
+      const { user, accessToken, accessOption, refreshToken, refreshOption } =
+        await this.oauthService.githubSignin(oauthSigninDTO);
+      return true;
     } catch (e) {
       throw new ApolloError(e);
     }
