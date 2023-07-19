@@ -23,12 +23,18 @@
 
 ### auth/jwt
 
-| Method | URI            | BODY          | 설명                                      |
-| ------ | -------------- | ------------- | ----------------------------------------- |
-| POST   | /auth/signin   | SignInDTO     | 로그인                                    |
-| GET    | /auth/refresh  |               | accessToken재발급(refreshToken 쿠키 필요) |
-| POST   | /auth/signout  | CreateUserDTO | 로그아웃                                  |
-| DELETE | /uauthser/:uid |               | 사용자 삭제                               |
+| Method | URI           | BODY          | 설명                                      |
+| ------ | ------------- | ------------- | ----------------------------------------- |
+| POST   | /auth/signin  | SignInDTO     | 로그인                                    |
+| GET    | /auth/refresh |               | accessToken재발급(refreshToken 쿠키 필요) |
+| POST   | /auth/signout | CreateUserDTO | 로그아웃                                  |
+| DELETE | /auth/:uid    |               | 사용자 삭제                               |
+
+### oauth/github
+
+| Method | URI            | BODY           | 설명   |
+| ------ | -------------- | -------------- | ------ |
+| POST   | /github/signin | oauthSigninDTO | 로그인 |
 
 ## 2. Graphql
 
@@ -215,7 +221,7 @@ mutation{
 
 ```
 mutation{
-  signin(signInDTO: {email: "email", password: "password"})
+  signin(signInDTO: {name: "name", password: "password"})
 }
 ```
 
@@ -240,5 +246,15 @@ mutation{
     httpOnly
     maxAge
   }
+}
+```
+
+### Oauth(github)
+
+- githubSignin: 로그인
+
+```
+mutation{
+  githubSignin(oauthSigninDTO: {code: "code"})
 }
 ```
