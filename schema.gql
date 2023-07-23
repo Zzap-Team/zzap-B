@@ -34,6 +34,11 @@ type TokenInfo {
   maxAge: Float!
 }
 
+type tokenInfoDTO {
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Query {
   users: [User!]!
   user(uid: String!): User!
@@ -48,7 +53,7 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
-  signin(signInDTO: SignInDTO!): Boolean!
+  signin(signInDTO: SignInDTO!): tokenInfoDTO!
   signout: TokenInfo!
   refreshToken: TokenInfo!
   signinWithGithub(oauthSigninDTO: OauthSigninDTO!): Boolean!
