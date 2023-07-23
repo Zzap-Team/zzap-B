@@ -10,18 +10,18 @@ import { AuthToken } from './decorator/AuthToken.decorator';
 import { RefreshToken } from './decorator/RefreshToken.decorator';
 import { User } from 'src/model/user.entity';
 import { Uid } from './decorator/uid.decorator';
+import { tokenInfoDTO } from './dto/tokenInfo.dto';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: JwtAuthService) {}
 
-  @Mutation((returns) => Boolean)
-  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<boolean> {
-    // 임시로 bool
+  @Mutation((returns) => tokenInfoDTO)
+  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<tokenInfoDTO> {
     try {
       const { user, accessToken, accessOption, refreshToken, refreshOption } =
         await this.authService.signIn(signInDTO);
-      return true;
+      return { accessToken: accessToken, refreshToken: refreshToken };
     } catch (e) {
       throw new ApolloError(e);
     }

@@ -220,8 +220,11 @@ mutation{
 - signin: 로그인
 
 ```
-mutation{
-  signin(signInDTO: {email: "email", password: "password"})
+mutation {
+	signin(signInDTO: {email: "email", password: "password"}){
+    accessToken
+    refreshToken
+  }
 }
 ```
 
