@@ -258,6 +258,9 @@ mutation{
 
 ```
 mutation{
-  signinWithGithub(oauthSigninDTO: {code: "code"})
+  signinWithGithub(oauthSigninDTO: {code: "code"}){
+    accessToken
+    refreshToken
+  }
 }
 ```
