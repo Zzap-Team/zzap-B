@@ -56,7 +56,7 @@ type Mutation {
   signin(signInDTO: SignInDTO!): tokenInfoDTO!
   signout: TokenInfo!
   refreshToken: TokenInfo!
-  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): Boolean!
+  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): tokenInfoDTO!
 }
 
 input CreateUserDTO {
