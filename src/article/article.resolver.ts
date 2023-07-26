@@ -10,7 +10,7 @@ import { UseGuards } from '@nestjs/common';
 import { Article } from '../model/article.model';
 import { ApolloError } from 'apollo-server-express';
 import { ArticleService } from './article.service';
-import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
+import { GqlAuthGurad } from 'src/auth/guard/gqlAuth.guard';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { Uid } from 'src/auth/jwt/decorator/uid.decorator';

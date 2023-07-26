@@ -91,7 +91,6 @@ export class UserService {
   }
 
   async setOauthToken(token: string, uid: string) {
-    // JWT로 변환해서 저장해야하나??
     await this.userRepository.update(uid, {
       hashedRefreshToken: token,
     });

@@ -2,21 +2,21 @@ import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ApolloError } from 'apollo-server-express';
 import { JwtAuthService } from './jwtAuth.service';
-import { GqlAuthGurad } from './guard/gqlAuth.guard';
+import { GqlAuthGurad } from '../guard/gqlAuth.guard';
 import { SignInDTO } from './dto/signIn.dto';
 import { TokenInfo } from '../../model/tokenInfo.model';
-import { GqlRefreshGurad } from './guard/gqlRefresh.guard';
+import { GqlRefreshGurad } from '../guard/gqlRefresh.guard';
 import { AuthToken } from './decorator/AuthToken.decorator';
 import { RefreshToken } from './decorator/RefreshToken.decorator';
 import { Uid } from './decorator/uid.decorator';
-import { TokensDTO } from './dto/tokens.dto';
+import { Tokens } from '../../model/tokens.model';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: JwtAuthService) {}
 
-  @Mutation((returns) => TokensDTO)
-  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<TokensDTO> {
+  @Mutation((returns) => Tokens)
+  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<Tokens> {
     try {
       const { statusCode, message, accessToken, refreshToken } =
         await this.authService.signIn(signInDTO);

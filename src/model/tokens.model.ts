@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { TokenInfo } from 'src/model/tokenInfo.model';
 
 @ObjectType()
-export class TokensDTO {
+export class Tokens {
   @Field()
   statusCode: number;
 

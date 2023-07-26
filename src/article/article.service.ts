@@ -19,7 +19,10 @@ export class ArticleService {
   }
 
   async findOne(articleID: string): Promise<Article | void> {
-    return await this.articleRepository.findOneBy({ articleID: articleID });
+    return await this.articleRepository.findOne({
+      where: { articleID: articleID },
+      relations: ['author'],
+    });
   }
 
   async findAllByUid(uid: string): Promise<Article[]> {

@@ -13,7 +13,7 @@ import { Article } from 'src/model/article.model';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
-import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
+import { GqlAuthGurad } from 'src/auth/guard/gqlAuth.guard';
 import { ArticleService } from 'src/article/article.service';
 
 @Resolver(() => User)

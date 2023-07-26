@@ -17,7 +17,7 @@ export class Article {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 3000 })
   content: string;
 
   @CreateDateColumn()
