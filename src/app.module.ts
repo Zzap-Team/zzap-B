@@ -38,7 +38,7 @@ import { OauthModule } from './auth/oauth/oauth.module';
           return connection;
         }
       },
-      //playground: false, 주소: http://localhost:3000/graphql
+      //playground: false
     }),
     UserModule,
     ArticleModule,

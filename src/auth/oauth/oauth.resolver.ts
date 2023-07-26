@@ -2,20 +2,25 @@ import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { ApolloError } from 'apollo-server-express';
 import { OauthService } from './oauth.service';
 import { OauthSigninDTO } from './dto/oauthSignin.dto';
-import { tokenInfoDTO } from '../jwt/dto/tokenInfo.dto';
+import { TokensDTO } from '../jwt/dto/tokens.dto';
 
 @Resolver()
 export class OauthResolver {
   constructor(private readonly oauthService: OauthService) {}
 
-  @Mutation(() => tokenInfoDTO)
+  @Mutation(() => TokensDTO)
   async signinWithGithub(
     @Args('oauthSigninDTO') oauthSigninDTO: OauthSigninDTO,
-  ): Promise<tokenInfoDTO> {
+  ): Promise<TokensDTO> {
     try {
-      const { user, accessToken, accessOption, refreshToken, refreshOption } =
+      const { statusCode, message, accessToken, refreshToken } =
         await this.oauthService.githubSignin(oauthSigninDTO);
-      return { accessToken, refreshToken };
+      return {
+        statusCode,
+        message,
+        accessToken,
+        refreshToken,
+      };
     } catch (e) {
       throw new ApolloError(e);
     }

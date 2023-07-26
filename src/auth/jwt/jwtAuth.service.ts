@@ -8,8 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signIn.dto';
-import { Request } from 'express';
-import { TokenInfo } from './model/tokenInfo.model';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -22,14 +20,19 @@ export class JwtAuthService extends AuthService {
   }
 
   async signIn(signInDTO: SignInDTO) {
+    let statusCode = 200;
+    let message = 'success';
     const user = await this.vaildateUser(signInDTO);
-    const { token: accessToken, ...accessOption } =
-      await this.getJwtAccessToken(user.uid);
-    const { token: refreshToken, ...refreshOption } =
-      await this.getJwtRefreshToken(user.uid);
-    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
+    const accessToken = await this.getJwtAccessToken(user.uid);
+    const refreshToken = await this.getJwtRefreshToken(user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken.token, user.uid);
 
-    return { user, accessToken, accessOption, refreshToken, refreshOption };
+    return {
+      statusCode,
+      message,
+      accessToken,
+      refreshToken,
+    };
   }
 
   private async vaildateUser(signInDTO: SignInDTO): Promise<any> {

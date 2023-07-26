@@ -16,8 +16,21 @@ export class OauthService extends AuthService {
   }
 
   public async githubSignin(oauthSigninDTO: OauthSigninDTO) {
+    let statusCode = 200;
+    let message = 'success';
     const { code } = oauthSigninDTO;
-    const access_token = await this.getAccessToken(code);
+    let access_token = '';
+    try {
+      access_token = await this.getAccessToken(code);
+    } catch (e) {
+      statusCode = 410;
+      return {
+        statusCode: statusCode,
+        message: 'Code is expired. please request code to github server.',
+        accessToken: { token: '', httpOnly: true, maxAge: 0 },
+        refreshToken: { token: '', httpOnly: true, maxAge: 0 },
+      };
+    }
     const getUserUrl: string = 'https://api.github.com/user';
     const { data } = await axios.get(getUserUrl, {
       headers: {
@@ -25,14 +38,7 @@ export class OauthService extends AuthService {
       },
     });
     const { login, avatar_url, email, node_id, created_at } = data;
-    let message = 'success';
-    /*const githubInfo: GithubUserDTO = {
-      githubId: login,
-      avatar: avatar_url,
-      uid: node_id,
-      createdAt: created_at,
-      email: email,
-    };*/
+
     let user: User = new User();
     if (email === null) {
       throw new HttpException(
@@ -43,7 +49,6 @@ export class OauthService extends AuthService {
     try {
       user = await this.userService.findOneByEmail(email);
     } catch (exception) {
-      console.log(exception);
       if (exception.status == 404) {
         user = await this.userService.createWithUid(
           {
@@ -56,18 +61,14 @@ export class OauthService extends AuthService {
       }
     }
 
-    const { token: accessToken, ...accessOption } =
-      await this.getJwtAccessToken(user.uid);
-    const { token: refreshToken, ...refreshOption } =
-      await this.getJwtRefreshToken(user.uid);
-    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
+    const accessToken = await this.getJwtAccessToken(user.uid);
+    const refreshToken = await this.getJwtRefreshToken(user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken.token, user.uid);
     return {
+      statusCode,
       message,
-      user,
       accessToken,
-      accessOption,
       refreshToken,
-      refreshOption,
     };
   }
 
@@ -85,9 +86,14 @@ export class OauthService extends AuthService {
       },
     );
     if (response.data.error) {
-      throw new Error('Error: fail github authentication!!');
+      switch (response.data.error) {
+        case 'bad_verification_code':
+          throw new HttpException('Your Code is expired', HttpStatus.GONE);
+        default:
+          throw new Error('Error: fail github authentication!!');
+      }
     }
-    const { access_token, refresh_token } = response.data;
+    const { access_token } = response.data;
     return access_token;
   }
 }

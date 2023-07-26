@@ -13,10 +13,16 @@ export class OauthController {
     @Res({ passthrough: true }) res: Response,
     @Body() oauthSigninDTO: OauthSigninDTO,
   ) {
-    const { user, accessToken, accessOption, refreshToken, refreshOption } =
+    const { statusCode, accessToken, refreshToken } =
       await this.oauthService.githubSignin(oauthSigninDTO);
-    res.cookie('Authentication', accessToken, accessOption);
-    res.cookie('Refresh', refreshToken, refreshOption);
-    return user;
+    res.cookie('Authentication', accessToken.token, {
+      httpOnly: accessToken.httpOnly,
+      maxAge: accessToken.maxAge,
+    });
+    res.cookie('Refresh', refreshToken.token, {
+      httpOnly: refreshToken.httpOnly,
+      maxAge: refreshToken.maxAge,
+    });
+    return statusCode;
   }
 }
