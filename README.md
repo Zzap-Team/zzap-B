@@ -98,7 +98,6 @@ query users{
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -117,7 +116,6 @@ query user($uid: String!){
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -136,7 +134,6 @@ query me{
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -160,7 +157,6 @@ mutation createUser($name: String!, $email: String!, $password: String!){
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID

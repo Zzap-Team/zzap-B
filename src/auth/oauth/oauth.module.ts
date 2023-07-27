@@ -5,12 +5,7 @@ import { UserModule } from 'src/user/user.module';
 import { OauthResolver } from './oauth.resolver';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: ['.env.development'],
-    }),
-    UserModule,
-  ],
+  imports: [UserModule],
   providers: [OauthService, OauthResolver],
 })
 export class OauthModule {}

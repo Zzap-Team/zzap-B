@@ -13,9 +13,6 @@ export class User {
   @Field()
   name: string;
 
-  @Field({ nullable: true })
-  password: string;
-
   @Field()
   createdAt: Date;
 
