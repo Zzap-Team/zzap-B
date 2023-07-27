@@ -13,8 +13,9 @@ export class OauthController {
     @Res({ passthrough: true }) res: Response,
     @Body() oauthSigninDTO: OauthSigninDTO,
   ) {
-    const { statusCode, accessToken, refreshToken } =
-      await this.oauthService.githubSignin(oauthSigninDTO);
+    const { accessToken, refreshToken } = await this.oauthService.githubSignin(
+      oauthSigninDTO,
+    );
     res.cookie('Authentication', accessToken.token, {
       httpOnly: accessToken.httpOnly,
       maxAge: accessToken.maxAge,
@@ -23,6 +24,6 @@ export class OauthController {
       httpOnly: refreshToken.httpOnly,
       maxAge: refreshToken.maxAge,
     });
-    return statusCode;
+    return;
   }
 }

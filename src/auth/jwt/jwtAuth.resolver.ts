@@ -18,16 +18,15 @@ export class AuthResolver {
   @Mutation((returns) => Tokens)
   async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<Tokens> {
     try {
-      const { statusCode, message, accessToken, refreshToken } =
-        await this.authService.signIn(signInDTO);
+      const { accessToken, refreshToken } = await this.authService.signIn(
+        signInDTO,
+      );
       return {
-        statusCode: statusCode,
-        message: message,
         accessToken: accessToken,
         refreshToken: refreshToken,
       };
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 

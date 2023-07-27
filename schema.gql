@@ -34,9 +34,7 @@ type TokenInfo {
   maxAge: Float!
 }
 
-type TokensDTO {
-  statusCode: Float!
-  message: String!
+type Tokens {
   accessToken: TokenInfo!
   refreshToken: TokenInfo!
 }
@@ -55,10 +53,10 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
   deleteArticle(articleID: String!): Boolean!
-  signin(signInDTO: SignInDTO!): TokensDTO!
+  signin(signInDTO: SignInDTO!): Tokens!
   signout: TokenInfo!
   refreshToken: TokenInfo!
-  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): TokensDTO!
+  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): Tokens!
 }
 
 input CreateUserDTO {

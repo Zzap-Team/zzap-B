@@ -7,8 +7,9 @@ import {
   Parent,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
+import { ApolloError, UserInputError } from 'apollo-server-express';
+
 import { Article } from '../model/article.model';
-import { ApolloError } from 'apollo-server-express';
 import { ArticleService } from './article.service';
 import { GqlAuthGurad } from 'src/auth/guard/gqlAuth.guard';
 import { CreateArticleDTO } from './dto/createArticle.dto';
@@ -31,11 +32,13 @@ export class ArticleResolver {
 
   @Query((returns) => Article, { name: 'article' })
   async getArticle(@Args('articleID') articleID: string) {
-    try {
-      return await this.articleService.findOne(articleID);
-    } catch (e) {
-      throw new ApolloError(e);
+    const article = await this.articleService.findOne(articleID);
+    if (article === null) {
+      throw new UserInputError('Can not find article for articleID', {
+        argumentName: 'articleID',
+      });
     }
+    return article;
   }
 
   @UseGuards(GqlAuthGurad)
@@ -45,7 +48,6 @@ export class ArticleResolver {
     @Uid() uid: string,
   ): Promise<Article> {
     try {
-      console.log(createArticleDTO);
       return await this.articleService.create(uid, createArticleDTO);
     } catch (e) {
       throw new ApolloError(e);

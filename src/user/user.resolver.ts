@@ -37,7 +37,7 @@ export class UserResolver {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 
@@ -47,7 +47,7 @@ export class UserResolver {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 

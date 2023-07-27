@@ -5,6 +5,7 @@ import { User } from '../model/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { ApolloError } from 'apollo-server-express';
 
 @Injectable()
 export class UserService {
@@ -21,22 +22,20 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ uid: uid });
     if (user) {
       return user;
-    }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    } else
+      throw new ApolloError('Can not found user at database', 'NotFound', {
+        data: 'User',
+      });
   }
 
   async findOneByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOneBy({ email: email });
     if (user) {
       return user;
-    }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    } else
+      throw new ApolloError('Can not found user at database', 'NotFound', {
+        data: 'User',
+      });
   }
 
   private async exist(email: string): Promise<boolean> {
@@ -62,7 +61,10 @@ export class UserService {
   ): Promise<User> {
     const newUser = new User();
     const isExist = await this.exist(createUserDTO.email);
-    if (isExist) throw new Error('Error: This account already exists.');
+    if (isExist)
+      throw new ApolloError('Email does not exist.', 'NONEXISTENT_VALUE', {
+        argumentName: 'email',
+      });
     newUser.uid = uid;
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
@@ -77,7 +79,7 @@ export class UserService {
     try {
       await this.userRepository.delete(uid);
     } catch (e) {
-      throw new Error(e);
+      return false;
     }
     return true;
   }
@@ -107,7 +109,7 @@ export class UserService {
     );
     if (isRefreshTokenMatching) {
       return uid;
-    } else return '';
+    } else return undefined;
   }
 
   async removeRefreshToken(uid: string) {

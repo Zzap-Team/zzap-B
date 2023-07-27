@@ -1,8 +1,5 @@
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthenticationError } from 'apollo-server-express';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
 import { RefreshGuard } from './jwtRefresh.guard';
@@ -16,7 +13,7 @@ export class GqlRefreshGurad extends RefreshGuard {
     const request = GqlExecutionContext.create(context).getContext().req;
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Can not find refresh token');
+      throw new AuthenticationError('Can not find refresh token');
     }
     try {
       const { uid } = this.jwtService.verify(token, {
@@ -24,7 +21,7 @@ export class GqlRefreshGurad extends RefreshGuard {
       });
       request['uid'] = uid;
     } catch {
-      throw new UnauthorizedException('Your refresh token is expired');
+      throw new AuthenticationError('Refresh token is expired');
     }
     return true;
   }

@@ -55,7 +55,7 @@ export class ArticleService {
     try {
       await !!this.articleRepository.delete(articleID);
     } catch (e) {
-      throw new Error(e);
+      return false;
     }
     return true;
   }
@@ -68,7 +68,7 @@ export class ArticleService {
         updatedAt: new Date(),
       }));
     } catch (e) {
-      throw new Error(e);
+      return false;
     }
   }
 }

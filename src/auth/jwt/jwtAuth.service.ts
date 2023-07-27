@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { GraphQLError } from 'graphql';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signIn.dto';
 import { AuthService } from '../auth.service';
@@ -20,16 +21,12 @@ export class JwtAuthService extends AuthService {
   }
 
   async signIn(signInDTO: SignInDTO) {
-    let statusCode = 200;
-    let message = 'success';
     const user = await this.vaildateUser(signInDTO);
     const accessToken = await this.getJwtAccessToken(user.uid);
     const refreshToken = await this.getJwtRefreshToken(user.uid);
     await this.userService.setJwtRefreshToken(refreshToken.token, user.uid);
 
     return {
-      statusCode,
-      message,
       accessToken,
       refreshToken,
     };
@@ -43,10 +40,12 @@ export class JwtAuthService extends AuthService {
       user.password,
     );
     if (!isPasswordMatching) {
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new GraphQLError('Wrong credentials provided', {
+        extensions: {
+          code: 'INVALID_VALUE',
+          argumentName: 'password',
+        },
+      });
     }
     return user;
   }

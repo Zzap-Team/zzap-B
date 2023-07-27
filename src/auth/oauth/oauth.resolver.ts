@@ -13,16 +13,14 @@ export class OauthResolver {
     @Args('oauthSigninDTO') oauthSigninDTO: OauthSigninDTO,
   ): Promise<Tokens> {
     try {
-      const { statusCode, message, accessToken, refreshToken } =
+      const { accessToken, refreshToken } =
         await this.oauthService.githubSignin(oauthSigninDTO);
       return {
-        statusCode,
-        message,
         accessToken,
         refreshToken,
       };
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 }

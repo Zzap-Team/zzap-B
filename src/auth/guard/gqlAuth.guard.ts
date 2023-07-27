@@ -1,8 +1,5 @@
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
 import { AuthGuard } from './jwtAuth.guard';
@@ -16,7 +13,7 @@ export class GqlAuthGurad extends AuthGuard {
     const request = GqlExecutionContext.create(context).getContext().req;
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Can not find access token');
+      throw new ApolloError('Can not find access token', 'UNAUTHORIZED');
     }
     try {
       const { uid } = this.jwtService.verify(token, {
@@ -24,7 +21,7 @@ export class GqlAuthGurad extends AuthGuard {
       });
       request['uid'] = uid;
     } catch {
-      throw new UnauthorizedException('Your access token is expired');
+      throw new ApolloError('Access token is expired', 'UNAUTHORIZED');
     }
     return true;
   }

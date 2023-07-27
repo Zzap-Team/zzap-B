@@ -29,8 +29,9 @@ export class AuthController {
     @Body() signInDTO: SignInDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { statusCode, accessToken, refreshToken } =
-      await this.jwtAuthService.signIn(signInDTO);
+    const { accessToken, refreshToken } = await this.jwtAuthService.signIn(
+      signInDTO,
+    );
     res.cookie('Authentication', accessToken.token, {
       httpOnly: accessToken.httpOnly,
       maxAge: accessToken.maxAge,
@@ -39,7 +40,6 @@ export class AuthController {
       httpOnly: refreshToken.httpOnly,
       maxAge: refreshToken.maxAge,
     });
-    return statusCode;
   }
 
   @UseGuards(RefreshGuard)
