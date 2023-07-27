@@ -1,42 +1,6 @@
 # API 명세
 
-## 1. REST API
-
-### Article
-
-| Method | URI                 | BODY             | 설명             |
-| ------ | ------------------- | ---------------- | ---------------- |
-| GET    | /article            |                  | 모든 게시글 조회 |
-| GET    | /article/:articleID |                  | 게시글 조회      |
-| POST   | /article            | CreateArticleDTO | 게시글 생성      |
-| DELETE | /article/:articleID |                  | 게시글 삭제      |
-| UPDATE | /article/:articleID | UpdateArticleDTO | 게시글 갱신      |
-
-### User
-
-| Method | URI        | BODY          | 설명             |
-| ------ | ---------- | ------------- | ---------------- |
-| GET    | /user      |               | 모든 사용자 조회 |
-| GET    | /user/:uid |               | 사용자 조회      |
-| POST   | /user      | CreateUserDTO | 사용자 생성      |
-| DELETE | /user/:uid |               | 사용자 삭제      |
-
-### auth/jwt
-
-| Method | URI           | BODY          | 설명                                      |
-| ------ | ------------- | ------------- | ----------------------------------------- |
-| POST   | /auth/signin  | SignInDTO     | 로그인                                    |
-| GET    | /auth/refresh |               | accessToken재발급(refreshToken 쿠키 필요) |
-| POST   | /auth/signout | CreateUserDTO | 로그아웃                                  |
-| DELETE | /auth/:uid    |               | 사용자 삭제                               |
-
-### oauth/github
-
-| Method | URI            | BODY           | 설명   |
-| ------ | -------------- | -------------- | ------ |
-| POST   | /github/signin | oauthSigninDTO | 로그인 |
-
-## 2. Graphql
+## 1. Graphql
 
 ### Article
 
@@ -275,3 +239,15 @@ mutation signinWithGithub($code: String!){
   }
 }
 ```
+
+# ERROR CODE
+
+| CODE              | 설명                   | 예시                                               |
+| ----------------- | ---------------------- | -------------------------------------------------- |
+| EXPIRED           | code나 token이 만료    | 같은 code 두 번 사용으로 만료                      |
+| NONEXISTENT_VALUE | 필요한 값이 없음       | query variable이 부족한 경우                       |
+| INVALID_VALUE     | 유효하지 않은 값       | 패스워드 불일치, 회원가입시 이미 계정 존재         |
+| BAD_USER_INPUT    | invalid query variable | 해당 User가 존재하지 않음, article이 존재하지 않음 |
+| UNAUTHORIZED      | 인가실패               | 로그인이 필요한 기능                               |
+| UNAUTHENTICATED   | 인증실패               | 로그인, refreshtoken 재발급                        |
+| BAD_REQUEST       | class-validator error  | 이메일, 패스워드 포맷과 안맞는 경우                |
