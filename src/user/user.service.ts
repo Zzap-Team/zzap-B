@@ -5,7 +5,7 @@ import { User } from '../model/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
-import { ApolloError } from 'apollo-server-express';
+import { ApolloError, UserInputError } from 'apollo-server-express';
 
 @Injectable()
 export class UserService {
@@ -23,7 +23,7 @@ export class UserService {
     if (user) {
       return user;
     } else
-      throw new ApolloError('Can not found user at database', 'NotFound', {
+      throw new UserInputError('Can not found user at database', {
         data: 'User',
       });
   }
@@ -33,7 +33,7 @@ export class UserService {
     if (user) {
       return user;
     } else
-      throw new ApolloError('Can not found user at database', 'NotFound', {
+      throw new UserInputError('Can not found user at database', {
         data: 'User',
       });
   }
@@ -45,7 +45,9 @@ export class UserService {
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
     const isExist = await this.exist(createUserDTO.email);
-    if (isExist) throw new Error('Error: This account already exists.');
+    if (isExist)
+      throw new ApolloError('This account already exists.', 'INVALID_VALUE');
+
     newUser.uid = uuidv4();
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();

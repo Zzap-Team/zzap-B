@@ -34,7 +34,7 @@ export class JwtAuthService extends AuthService {
 
   private async vaildateUser(signInDTO: SignInDTO): Promise<any> {
     const user = await this.userService.findOneByEmail(signInDTO.email);
-    if (!user) throw new UnauthorizedException('can not find user');
+    if (!user) throw new UnauthorizedException('Can not find user');
     const isPasswordMatching = await bcrypt.compareSync(
       signInDTO.password,
       user.password,

@@ -1,9 +1,5 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthenticationError } from 'apollo-server-express';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
@@ -19,7 +15,7 @@ export class RefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Can not find access token');
+      throw new AuthenticationError('Can not find access token');
     }
     try {
       const { uid } = this.jwtService.verify(token, {
@@ -27,7 +23,7 @@ export class RefreshGuard implements CanActivate {
       });
       request['uid'] = uid;
     } catch {
-      throw new UnauthorizedException('Your access token is expired');
+      throw new AuthenticationError('Your access token is expired');
     }
     return true;
   }

@@ -13,7 +13,7 @@ export class GqlAuthGurad extends AuthGuard {
     const request = GqlExecutionContext.create(context).getContext().req;
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new ApolloError('Can not find access token', 'UNAUTHORIZED');
+      throw new AuthenticationError('Can not find access token');
     }
     try {
       const { uid } = this.jwtService.verify(token, {
@@ -21,7 +21,7 @@ export class GqlAuthGurad extends AuthGuard {
       });
       request['uid'] = uid;
     } catch {
-      throw new ApolloError('Access token is expired', 'UNAUTHORIZED');
+      throw new AuthenticationError('Access token is expired');
     }
     return true;
   }
