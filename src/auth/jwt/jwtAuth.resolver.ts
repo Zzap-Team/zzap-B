@@ -1,44 +1,48 @@
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { ApolloError } from 'apollo-server-express';
 import { JwtAuthService } from './jwtAuth.service';
 import { GqlAuthGurad } from '../guard/gqlAuth.guard';
 import { SignInDTO } from './dto/signIn.dto';
-import { TokenInfo } from '../../model/tokenInfo.model';
 import { GqlRefreshGurad } from '../guard/gqlRefresh.guard';
-import { AuthToken } from './decorator/AuthToken.decorator';
 import { RefreshToken } from './decorator/RefreshToken.decorator';
 import { Uid } from './decorator/uid.decorator';
-import { Tokens } from '../../model/tokens.model';
+import { SigninInfo } from '../../model/signinInfo.model';
+import { Response } from './decorator/Response.decorator';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: JwtAuthService) {}
 
-  @Mutation((returns) => Tokens)
-  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<Tokens> {
+  @Mutation((returns) => SigninInfo)
+  async signin(@Args('signInDTO') signInDTO: SignInDTO): Promise<SigninInfo> {
     try {
-      const { accessToken, refreshToken } = await this.authService.signIn(
-        signInDTO,
-      );
+      const { accessToken, user } = await this.authService.signIn(signInDTO );
       return {
         accessToken: accessToken,
-        refreshToken: refreshToken,
+        user: user
       };
     } catch (e) {
       throw e;
     }
   }
 
-  @Mutation((returns) => TokenInfo)
+  @Mutation((returns) => Boolean)
   @UseGuards(GqlAuthGurad)
-  async signout(@Uid() uid: string): Promise<TokenInfo> {
-    return await this.authService.signOut(uid);
+  async signout(@Uid() uid: number,  @Response() res,): Promise<boolean> {
+    try{
+      const refresh = await this.authService.signOut(uid);
+      res.cookie('refreshtoken', refresh);
+      return true;
+    } catch(e){
+      // signout 실패 에러 던지기
+      throw new Error(e);
+    }
   }
 
-  @Mutation((returns) => TokenInfo)
+  // get access token with refresh token
+  @Mutation((returns) => String)
   @UseGuards(GqlRefreshGurad)
-  async refreshToken(@RefreshToken() token: string): Promise<TokenInfo> {
+  async getAccessToken(@RefreshToken() token: string): Promise<String> {
     return await this.authService.getJwtAccessTokenWithRefresh(token);
   }
 }

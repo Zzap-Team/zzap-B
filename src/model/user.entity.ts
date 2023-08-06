@@ -1,13 +1,13 @@
 // user typeorm model
-import { Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Article } from './article.entity';
 
 @Entity()
 export class User {
   //Primary Key & auto increment
-  @PrimaryColumn()
-  uid: string;
+  @PrimaryGeneratedColumn()
+  uid: number;
 
   @Column({ unique: true })
   email: string;

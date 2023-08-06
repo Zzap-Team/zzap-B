@@ -5,10 +5,11 @@ import {
   Mutation,
   ResolveField,
   Parent,
+  ObjectType,
+  Field,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ApolloError, UserInputError } from 'apollo-server-express';
-
 import { Article } from '../model/article.model';
 import { ArticleService } from './article.service';
 import { GqlAuthGurad } from 'src/auth/guard/gqlAuth.guard';
@@ -17,21 +18,37 @@ import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
 import { User } from 'src/model/user.model';
 
+
+@ObjectType()
+export class PaginatedArticles {
+  @Field(() => [Article])
+  articles: Article[];
+
+  @Field(() => Number, { nullable: true })
+  cursor?: Article['articleID'] | null;
+}
+
 @Resolver((returns) => Article)
 export class ArticleResolver {
   constructor(private readonly articleService: ArticleService) {}
 
-  @Query((returns) => [Article], { name: 'articles' })
-  async getArticles() {
+  @Query((returns) => PaginatedArticles, { name: 'articles' })
+  async getArticles(
+    @Args('limit', { nullable: true, defaultValue: 6 }) limit: number,
+    @Args('cursor', { nullable: true, defaultValue: 0 }) cursor: number): 
+  Promise<PaginatedArticles> {
     try {
-      return this.articleService.findAll();
+      console.log(limit, cursor);
+      const temp = await this.articleService.findAll(limit, cursor);
+      console.log(temp);
+      return temp;
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
   @Query((returns) => Article, { name: 'article' })
-  async getArticle(@Args('articleID') articleID: string) {
+  async getArticle(@Args('articleID') articleID: number) {
     const article = await this.articleService.findOne(articleID);
     if (article === null) {
       throw new UserInputError('Can not find article for articleID', {
@@ -45,7 +62,7 @@ export class ArticleResolver {
   @Mutation((returns) => Article)
   async createArticle(
     @Args('createArticleDTO') createArticleDTO: CreateArticleDTO,
-    @Uid() uid: string,
+    @Uid() uid: number,
   ): Promise<Article> {
     try {
       return await this.articleService.create(uid, createArticleDTO);
@@ -55,11 +72,11 @@ export class ArticleResolver {
   }
 
   @UseGuards(GqlAuthGurad)
-  @Mutation((returns) => Boolean)
+  @Mutation((returns) => Article)
   async updateArticle(
     @Args('updateArticleDTO') updateArticleDTO: UpdateArticleDTO,
-    @Args('articleID') articleID: string,
-  ): Promise<Boolean> {
+    @Args('articleID') articleID: number,
+  ): Promise<Article> {
     try {
       return await this.articleService.update(articleID, updateArticleDTO);
     } catch (e) {

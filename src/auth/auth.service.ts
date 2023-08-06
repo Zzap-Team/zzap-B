@@ -7,20 +7,16 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   constructor(
     protected userService: UserService,
-    protected jwtService: JwtService,
+    protected jwtService: JwtService, 
   ) {}
 
-  async signOut(uid: string) {
+  async signOut(uid: number): Promise<string> {
     await this.userService.setJwtRefreshToken('', uid);
-    return {
-      token: '',
-      httpOnly: true,
-      maxAge: 0,
-    };
+    return '';
   }
 
   async getJwtAccessTokenWithRefresh(jwtRefreshToken: string) {
-    let uid = '';
+    let uid = -1;
     try {
       const payload = this.jwtService.verify(jwtRefreshToken, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
@@ -41,18 +37,14 @@ export class AuthService {
     else throw new AuthenticationError('RefreshToken token get damaged');
   }
 
-  protected getJwtAccessToken(uid: String) {
+  protected getJwtAccessToken(uid: number) : string{
     const payload = { uid };
     try {
       const token = this.jwtService.sign(payload, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
         expiresIn: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
       });
-      return {
-        token: token,
-        httpOnly: true,
-        maxAge: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
-      };
+      return token;
     } catch (e) {
       throw new ApolloError('Refresh token is expired', 'EXPIRED', {
         argumentName: 'refreshToken',
@@ -60,18 +52,14 @@ export class AuthService {
     }
   }
 
-  protected getJwtRefreshToken(uid: String) {
+  protected getJwtRefreshToken(uid: number): string {
     const payload = { uid };
     try {
       const token = this.jwtService.sign(payload, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
         expiresIn: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME),
       });
-      return {
-        token: token,
-        httpOnly: true,
-        maxAge: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME),
-      };
+      return token;
     } catch (e) {
       throw new ApolloError('Refresh token is expired', 'EXPIRED', {
         argumentName: 'refreshToken',

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../model/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
-import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { ApolloError, UserInputError } from 'apollo-server-express';
 
@@ -18,7 +17,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOneByID(uid: string): Promise<User> {
+  async findOneByID(uid: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ uid: uid });
     if (user) {
       return user;
@@ -47,8 +46,6 @@ export class UserService {
     const isExist = await this.exist(createUserDTO.email);
     if (isExist)
       throw new ApolloError('This account already exists.', 'INVALID_VALUE');
-
-    newUser.uid = uuidv4();
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
     newUser.articles = null;
@@ -59,9 +56,10 @@ export class UserService {
 
   async createWithUid(
     createUserDTO: CreateUserDTO,
-    uid: string,
+    uid: number,
   ): Promise<User> {
     const newUser = new User();
+    
     const isExist = await this.exist(createUserDTO.email);
     if (isExist)
       throw new ApolloError('Email does not exist.', 'NONEXISTENT_VALUE', {
@@ -86,7 +84,7 @@ export class UserService {
     return true;
   }
 
-  async setJwtRefreshToken(refreshToken: string, uid: string) {
+  async setJwtRefreshToken(refreshToken: string, uid: number) {
     const hashedRefreshToken =
       refreshToken !== '' ? await bcrypt.hash(refreshToken, 10) : '';
     await this.userRepository.update(uid, {
@@ -94,7 +92,7 @@ export class UserService {
     });
   }
 
-  async setOauthToken(token: string, uid: string) {
+  async setOauthToken(token: string, uid: number) {
     await this.userRepository.update(uid, {
       hashedRefreshToken: token,
     });
@@ -102,8 +100,8 @@ export class UserService {
 
   async getUidIfRefreshTokenMatches(
     refreshToken: string,
-    uid: string,
-  ): Promise<string> {
+    uid: number,
+  ): Promise<number> {
     const user = await this.findOneByID(uid);
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
@@ -114,7 +112,7 @@ export class UserService {
     } else return undefined;
   }
 
-  async removeRefreshToken(uid: string) {
+  async removeRefreshToken(uid: number) {
     return this.userRepository.update(uid, {
       hashedRefreshToken: null,
     });

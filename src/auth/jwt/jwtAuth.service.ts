@@ -24,11 +24,11 @@ export class JwtAuthService extends AuthService {
     const user = await this.vaildateUser(signInDTO);
     const accessToken = await this.getJwtAccessToken(user.uid);
     const refreshToken = await this.getJwtRefreshToken(user.uid);
-    await this.userService.setJwtRefreshToken(refreshToken.token, user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
 
     return {
       accessToken,
-      refreshToken,
+      user,
     };
   }
 

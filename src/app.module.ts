@@ -31,14 +31,13 @@ import { formatError } from './formatError';
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       formatError: formatError,
-      context: ({ req, connection }) => {
+      context: ({ req, res }) => {
         //graphql에게 request를 요청할때 req안으로 jwt토큰이 담깁니다.
         if (req) {
           const token = req.headers.authorization;
-
-          return { ...req, token };
+          return { req, res, token };
         } else {
-          return connection;
+          return { req, res };
         }
       },
       //playground: false

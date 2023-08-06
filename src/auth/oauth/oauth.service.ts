@@ -17,18 +17,14 @@ export class OauthService extends AuthService {
     super(userService, jwtService);
   }
 
-  public async githubSignin(oauthSigninDTO: OauthSigninDTO) {
+  public async githubSignin(oauthSigninDTO: OauthSigninDTO) { // return => {access, refresh, user}
     const { code } = oauthSigninDTO;
     let access_token = '';
     try {
       access_token = await this.getAccessToken(code);
-    } catch (e) {
+    } catch (e) { // fail github authentication to code
       console.log('error', e);
       throw e;
-      // return {
-      //   accessToken: { token: '', httpOnly: true, maxAge: 0 },
-      //   refreshToken: { token: '', httpOnly: true, maxAge: 0 },
-      // };
     }
     const getUserUrl: string = 'https://api.github.com/user';
     const { data } = await axios.get(getUserUrl, {
@@ -59,10 +55,11 @@ export class OauthService extends AuthService {
     }
     const accessToken = await this.getJwtAccessToken(user.uid);
     const refreshToken = await this.getJwtRefreshToken(user.uid);
-    await this.userService.setJwtRefreshToken(refreshToken.token, user.uid);
+    await this.userService.setJwtRefreshToken(refreshToken, user.uid);
     return {
       accessToken,
       refreshToken,
+      user
     };
   }
 

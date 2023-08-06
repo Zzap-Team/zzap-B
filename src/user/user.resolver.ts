@@ -33,7 +33,7 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user' })
-  async getUser(@Args('uid') uid: string): Promise<User> {
+  async getUser(@Args('uid') uid: number): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {
@@ -43,7 +43,7 @@ export class UserResolver {
 
   @UseGuards(GqlAuthGurad)
   @Query(() => User, { name: 'me' })
-  async getMe(@Uid() uid: string): Promise<User> {
+  async getMe(@Uid() uid: number): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {

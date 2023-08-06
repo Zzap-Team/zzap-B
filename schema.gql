@@ -7,6 +7,7 @@ type Article {
   articleID: ID!
   title: String!
   content: String
+  description: String
   createdAt: DateTime!
   updatedAt: DateTime!
   author: User!
@@ -26,36 +27,34 @@ type User {
   articles: [Article!]!
 }
 
-"""tokenInfo"""
-type TokenInfo {
-  token: String!
-  httpOnly: Boolean!
-  maxAge: Float!
+type PaginatedArticles {
+  articles: [Article!]!
+  cursor: Float
 }
 
-type Tokens {
-  accessToken: TokenInfo!
-  refreshToken: TokenInfo!
+type SigninInfo {
+  accessToken: String!
+  user: User!
 }
 
 type Query {
   users: [User!]!
-  user(uid: String!): User!
+  user(uid: Float!): User!
   me: User!
-  articles: [Article!]!
-  article(articleID: String!): Article!
+  articles(limit: Float = 6, cursor: Float = 0): PaginatedArticles!
+  article(articleID: Float!): Article!
 }
 
 type Mutation {
   createUser(createUserDTO: CreateUserDTO!): User!
   deleteUser: Boolean!
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
-  updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: String!): Boolean!
+  updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: Float!): Article!
   deleteArticle(articleID: String!): Boolean!
-  signin(signInDTO: SignInDTO!): Tokens!
-  signout: TokenInfo!
-  refreshToken: TokenInfo!
-  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): Tokens!
+  signin(signInDTO: SignInDTO!): SigninInfo!
+  signout: Boolean!
+  getAccessToken: String!
+  signinWithGithub(oauthSigninDTO: OauthSigninDTO!): SigninInfo!
 }
 
 input CreateUserDTO {
@@ -67,11 +66,13 @@ input CreateUserDTO {
 input CreateArticleDTO {
   title: String!
   content: String
+  description: String
 }
 
 input UpdateArticleDTO {
   title: String!
   content: String
+  description: String
 }
 
 input SignInDTO {
