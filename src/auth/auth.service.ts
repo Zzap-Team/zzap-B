@@ -1,4 +1,5 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ApolloError, AuthenticationError } from 'apollo-server-express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 
@@ -6,60 +7,63 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   constructor(
     protected userService: UserService,
-    protected jwtService: JwtService,
+    protected jwtService: JwtService, 
   ) {}
 
-  async signOut(uid: string) {
+  async signOut(uid: number): Promise<string> {
     await this.userService.setJwtRefreshToken('', uid);
-    return {
-      token: '',
-      httpOnly: true,
-      maxAge: 0,
-    };
+    return '';
   }
 
   async getJwtAccessTokenWithRefresh(jwtRefreshToken: string) {
+    let uid = -1;
     try {
       const payload = this.jwtService.verify(jwtRefreshToken, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
-      const { uid } = payload;
-      const temp = await this.userService.getUidIfRefreshTokenMatches(
-        jwtRefreshToken,
-        uid,
-      );
-      if (uid === temp) return this.getJwtAccessToken(uid);
-      else throw new Error();
-    } catch {
-      throw new UnauthorizedException(
-        'Your RefreshToken token does not exist or is expired. Please try sing in again',
-      );
+      uid = payload.uid;
+    } catch (e) {
+      throw new ApolloError('Refresh token is expired', 'EXPIRED', {
+        argumentName: 'refreshToken',
+      });
+    }
+    const temp = await this.userService.getUidIfRefreshTokenMatches(
+      jwtRefreshToken,
+      uid,
+    );
+    if (!temp)
+      throw new AuthenticationError('RefreshToken token does not exist');
+    if (uid === temp) return this.getJwtAccessToken(uid);
+    else throw new AuthenticationError('RefreshToken token get damaged');
+  }
+
+  protected getJwtAccessToken(uid: number) : string{
+    const payload = { uid };
+    try {
+      const token = this.jwtService.sign(payload, {
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
+      });
+      return token;
+    } catch (e) {
+      throw new ApolloError('Refresh token is expired', 'EXPIRED', {
+        argumentName: 'refreshToken',
+      });
     }
   }
 
-  protected getJwtAccessToken(uid: String) {
+  protected getJwtRefreshToken(uid: number): string {
     const payload = { uid };
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
-    });
-    return {
-      token: token,
-      httpOnly: true,
-      maxAge: Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME) * 1000,
-    };
-  }
-
-  protected getJwtRefreshToken(uid: String) {
-    const payload = { uid };
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME),
-    });
-    return {
-      token: token,
-      httpOnly: true,
-      maxAge: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME) * 1000,
-    };
+    try {
+      const token = this.jwtService.sign(payload, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        expiresIn: Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME),
+      });
+      return token;
+    } catch (e) {
+      throw new ApolloError('Refresh token is expired', 'EXPIRED', {
+        argumentName: 'refreshToken',
+      });
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -24,7 +24,19 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   // validation 데코레이터가 붙어있는 프로퍼티에 대한 유효성 검증
-  app.useGlobalPipes(new ValidationPipe({ transform: true })); // 1
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // exceptionFactory: (errors) => {
+      //   const result = errors.map((error) => ({
+      //     property: error.property,
+      //     message: error.constraints[Object.keys(error.constraints)[0]],
+      //   }));
+      //   return new BadRequestException(result);
+      // },
+      transform: true,
+    }),
+  );
+
   await app.listen(3000);
 }
 bootstrap();

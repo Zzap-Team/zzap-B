@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
+import { Repository, LessThan } from 'typeorm';
 import { Article } from '../model/article.entity';
 import { User } from 'src/model/user.entity';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { CreateArticleDTO } from './dto/createArticle.dto';
+
+import { PaginatedArticles } from './article.resolver';
 
 @Injectable()
 export class ArticleService {
@@ -14,15 +15,33 @@ export class ArticleService {
     private articleRepository: Repository<Article>,
   ) {}
 
-  findAll(): Promise<Article[]> {
-    return this.articleRepository.find({ relations: ['author'] });
+  async findAll(limit: number, cursor: number): Promise<PaginatedArticles> {
+    
+    const realLimit = Math.min(24, limit);
+    if (cursor < 0) return { articles: [] };
+    const articles = await this.articleRepository.find({
+      relations: ['author'],
+      take: realLimit,
+      skip: cursor,
+      order: {
+        articleID: 'DESC',
+      },
+    });
+    const newCursor = cursor + realLimit;
+    return {
+      articles: articles,
+      cursor: newCursor,
+    };
   }
 
-  async findOne(articleID: string): Promise<Article | void> {
-    return await this.articleRepository.findOneBy({ articleID: articleID });
+  async findOne(articleID: number): Promise<Article> {
+    return await this.articleRepository.findOne({
+      where: { articleID: articleID },
+      relations: ['author'],
+    });
   }
 
-  async findAllByUid(uid: string): Promise<Article[]> {
+  async findAllByUid(uid: number): Promise<Article[]> {
     console.log('uid', uid);
     return await this.articleRepository
       .createQueryBuilder('article')
@@ -33,13 +52,14 @@ export class ArticleService {
   }
 
   async create(
-    uid: string,
+    uid: number,
     CreateArticleDTO: CreateArticleDTO,
   ): Promise<Article> {
     const newArticle = new Article();
-    newArticle.articleID = uuidv4();
+    //newArticle.articleID = uuid();
     newArticle.title = CreateArticleDTO.title;
     newArticle.content = CreateArticleDTO.content;
+    newArticle.description = CreateArticleDTO.description;
     const user = new User();
     user.uid = uid;
     newArticle.author = user;
@@ -52,18 +72,21 @@ export class ArticleService {
     try {
       await !!this.articleRepository.delete(articleID);
     } catch (e) {
-      throw new Error(e);
+      return false;
     }
     return true;
   }
 
-  async update(articleID: string, article: UpdateArticleDTO): Promise<boolean> {
+  async update(articleID: number, article: UpdateArticleDTO): Promise<Article> {
     try {
-      return !!(await this.articleRepository.update(articleID, {
+      const temp = await this.articleRepository.update(articleID, {
         content: article.content,
         title: article.content,
+        description: article.description,
         updatedAt: new Date(),
-      }));
+      });
+      console.log(temp);
+      return await this.findOne(articleID);
     } catch (e) {
       throw new Error(e);
     }

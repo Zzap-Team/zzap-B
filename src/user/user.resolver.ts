@@ -13,7 +13,7 @@ import { Article } from 'src/model/article.model';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/createUser.dto';
 import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
-import { GqlAuthGurad } from 'src/auth/jwt/guard/gqlAuth.guard';
+import { GqlAuthGurad } from 'src/auth/guard/gqlAuth.guard';
 import { ArticleService } from 'src/article/article.service';
 
 @Resolver(() => User)
@@ -33,21 +33,21 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user' })
-  async getUser(@Args('uid') uid: string): Promise<User> {
+  async getUser(@Args('uid') uid: number): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 
   @UseGuards(GqlAuthGurad)
   @Query(() => User, { name: 'me' })
-  async getMe(@Uid() uid: string): Promise<User> {
+  async getMe(@Uid() uid: number): Promise<User> {
     try {
       return await this.userService.findOneByID(uid);
     } catch (e) {
-      throw new ApolloError(e);
+      throw e;
     }
   }
 

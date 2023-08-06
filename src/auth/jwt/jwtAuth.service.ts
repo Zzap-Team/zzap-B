@@ -6,10 +6,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { GraphQLError } from 'graphql';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signIn.dto';
-import { Request } from 'express';
-import { TokenInfo } from './model/tokenInfo.model';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -23,27 +22,30 @@ export class JwtAuthService extends AuthService {
 
   async signIn(signInDTO: SignInDTO) {
     const user = await this.vaildateUser(signInDTO);
-    const { token: accessToken, ...accessOption } =
-      await this.getJwtAccessToken(user.uid);
-    const { token: refreshToken, ...refreshOption } =
-      await this.getJwtRefreshToken(user.uid);
+    const accessToken = await this.getJwtAccessToken(user.uid);
+    const refreshToken = await this.getJwtRefreshToken(user.uid);
     await this.userService.setJwtRefreshToken(refreshToken, user.uid);
 
-    return { user, accessToken, accessOption, refreshToken, refreshOption };
+    return {
+      accessToken,
+      user,
+    };
   }
 
   private async vaildateUser(signInDTO: SignInDTO): Promise<any> {
     const user = await this.userService.findOneByEmail(signInDTO.email);
-    if (!user) throw new UnauthorizedException('can not find user');
+    if (!user) throw new UnauthorizedException('Can not find user');
     const isPasswordMatching = await bcrypt.compareSync(
       signInDTO.password,
       user.password,
     );
     if (!isPasswordMatching) {
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new GraphQLError('Wrong credentials provided', {
+        extensions: {
+          code: 'INVALID_VALUE',
+          argumentName: 'password',
+        },
+      });
     }
     return user;
   }

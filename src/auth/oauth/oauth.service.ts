@@ -1,10 +1,12 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { OauthSigninDTO } from './dto/oauthSignin.dto';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import axios, { AxiosResponse } from 'axios';
+
+import { OauthSigninDTO } from './dto/oauthSignin.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/model/user.entity';
 import { AuthService } from '../auth.service';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class OauthService extends AuthService {
@@ -15,9 +17,15 @@ export class OauthService extends AuthService {
     super(userService, jwtService);
   }
 
-  public async githubSignin(oauthSigninDTO: OauthSigninDTO) {
+  public async githubSignin(oauthSigninDTO: OauthSigninDTO) { // return => {access, refresh, user}
     const { code } = oauthSigninDTO;
-    const access_token = await this.getAccessToken(code);
+    let access_token = '';
+    try {
+      access_token = await this.getAccessToken(code);
+    } catch (e) { // fail github authentication to code
+      console.log('error', e);
+      throw e;
+    }
     const getUserUrl: string = 'https://api.github.com/user';
     const { data } = await axios.get(getUserUrl, {
       headers: {
@@ -25,49 +33,33 @@ export class OauthService extends AuthService {
       },
     });
     const { login, avatar_url, email, node_id, created_at } = data;
-    let message = 'success';
-    /*const githubInfo: GithubUserDTO = {
-      githubId: login,
-      avatar: avatar_url,
-      uid: node_id,
-      createdAt: created_at,
-      email: email,
-    };*/
+
     let user: User = new User();
     if (email === null) {
-      throw new HttpException(
-        'User Email does not exist. please signin to anothor method.',
-        HttpStatus.NOT_FOUND,
+      throw new ApolloError(
+        'User Email does not exist. Please signin to anothor method.',
+        'NONEXISTENT_VALUE',
+        { argumentName: 'email' },
       );
     }
-    try {
-      user = await this.userService.findOneByEmail(email);
-    } catch (exception) {
-      console.log(exception);
-      if (exception.status == 404) {
-        user = await this.userService.createWithUid(
-          {
-            name: login,
-            email: email,
-            password: null,
-          },
-          node_id,
-        );
-      }
+    user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      user = await this.userService.createWithUid(
+        {
+          name: login,
+          email: email,
+          password: null,
+        },
+        node_id,
+      );
     }
-
-    const { token: accessToken, ...accessOption } =
-      await this.getJwtAccessToken(user.uid);
-    const { token: refreshToken, ...refreshOption } =
-      await this.getJwtRefreshToken(user.uid);
+    const accessToken = await this.getJwtAccessToken(user.uid);
+    const refreshToken = await this.getJwtRefreshToken(user.uid);
     await this.userService.setJwtRefreshToken(refreshToken, user.uid);
     return {
-      message,
-      user,
       accessToken,
-      accessOption,
       refreshToken,
-      refreshOption,
+      user
     };
   }
 
@@ -85,9 +77,18 @@ export class OauthService extends AuthService {
       },
     );
     if (response.data.error) {
-      throw new Error('Error: fail github authentication!!');
+      switch (response.data.error) {
+        case 'bad_verification_code':
+          throw new AuthenticationError('github Code is expired', {
+            code: 'EXPIRED',
+          });
+        default:
+          throw new AuthenticationError('fail github authentication!!', {
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+      }
     }
-    const { access_token, refresh_token } = response.data;
+    const { access_token } = response.data;
     return access_token;
   }
 }

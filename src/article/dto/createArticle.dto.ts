@@ -11,4 +11,8 @@ export class CreateArticleDTO {
   @Field({ nullable: true })
   @IsOptional()
   content: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  description: string;
 }
