@@ -1,30 +1,27 @@
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthenticationError } from 'apollo-server-express';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Observable } from 'rxjs';
-import { AuthGuard } from './jwtAuth.guard';
+import { RefreshGuard } from './jwtRefresh.guard';
 
-// access token이 유효한지 검사 - gql
+// refresh token이 유효한지 검사 - gql
 @Injectable()
-export class GqlAuthGurad extends AuthGuard {
+export class GqlRefreshGurad extends RefreshGuard {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = GqlExecutionContext.create(context).getContext().req;
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Can not find access token');
+      throw new AuthenticationError('Can not find refresh token');
     }
     try {
       const { uid } = this.jwtService.verify(token, {
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
       request['uid'] = uid;
     } catch {
-      throw new UnauthorizedException('Your access token is expired');
+      throw new AuthenticationError('Refresh token is expired');
     }
     return true;
   }

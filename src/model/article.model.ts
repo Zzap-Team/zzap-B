@@ -5,13 +5,16 @@ import { User } from './user.model';
 @ObjectType({ description: 'article' })
 export class Article {
   @Field(() => ID)
-  articleID: string;
+  articleID: number;
 
   @Field()
   title: string;
 
   @Field({ nullable: true })
   content: string;
+
+  @Field({ nullable: true})
+  description: string;
 
   @Field()
   createdAt: Date;

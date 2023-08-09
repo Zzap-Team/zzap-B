@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../model/user.entity';
 import { CreateUserDTO } from './dto/createUser.dto';
-import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { ApolloError, UserInputError } from 'apollo-server-express';
 
 @Injectable()
 export class UserService {
@@ -17,26 +17,24 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOneByID(uid: string): Promise<User> {
+  async findOneByID(uid: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ uid: uid });
     if (user) {
       return user;
-    }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    } else
+      throw new UserInputError('Can not found user at database', {
+        data: 'User',
+      });
   }
 
   async findOneByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOneBy({ email: email });
     if (user) {
       return user;
-    }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    } else
+      throw new UserInputError('Can not found user at database', {
+        data: 'User',
+      });
   }
 
   private async exist(email: string): Promise<boolean> {
@@ -46,8 +44,8 @@ export class UserService {
   async create(createUserDTO: CreateUserDTO): Promise<User> {
     const newUser = new User();
     const isExist = await this.exist(createUserDTO.email);
-    if (isExist) throw new Error('Error: This account already exists.');
-    newUser.uid = uuidv4();
+    if (isExist)
+      throw new ApolloError('This account already exists.', 'INVALID_VALUE');
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
     newUser.articles = null;
@@ -58,11 +56,15 @@ export class UserService {
 
   async createWithUid(
     createUserDTO: CreateUserDTO,
-    uid: string,
+    uid: number,
   ): Promise<User> {
     const newUser = new User();
+    
     const isExist = await this.exist(createUserDTO.email);
-    if (isExist) throw new Error('Error: This account already exists.');
+    if (isExist)
+      throw new ApolloError('Email does not exist.', 'NONEXISTENT_VALUE', {
+        argumentName: 'email',
+      });
     newUser.uid = uid;
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
@@ -77,12 +79,12 @@ export class UserService {
     try {
       await this.userRepository.delete(uid);
     } catch (e) {
-      throw new Error(e);
+      return false;
     }
     return true;
   }
 
-  async setJwtRefreshToken(refreshToken: string, uid: string) {
+  async setJwtRefreshToken(refreshToken: string, uid: number) {
     const hashedRefreshToken =
       refreshToken !== '' ? await bcrypt.hash(refreshToken, 10) : '';
     await this.userRepository.update(uid, {
@@ -90,8 +92,7 @@ export class UserService {
     });
   }
 
-  async setOauthToken(token: string, uid: string) {
-    // JWT로 변환해서 저장해야하나??
+  async setOauthToken(token: string, uid: number) {
     await this.userRepository.update(uid, {
       hashedRefreshToken: token,
     });
@@ -99,8 +100,8 @@ export class UserService {
 
   async getUidIfRefreshTokenMatches(
     refreshToken: string,
-    uid: string,
-  ): Promise<string> {
+    uid: number,
+  ): Promise<number> {
     const user = await this.findOneByID(uid);
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
@@ -108,10 +109,10 @@ export class UserService {
     );
     if (isRefreshTokenMatching) {
       return uid;
-    } else return '';
+    } else return undefined;
   }
 
-  async removeRefreshToken(uid: string) {
+  async removeRefreshToken(uid: number) {
     return this.userRepository.update(uid, {
       hashedRefreshToken: null,
     });

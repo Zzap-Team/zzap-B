@@ -1,49 +1,13 @@
 # API 명세
 
-## 1. REST API
-
-### Article
-
-| Method | URI                 | BODY             | 설명             |
-| ------ | ------------------- | ---------------- | ---------------- |
-| GET    | /article            |                  | 모든 게시글 조회 |
-| GET    | /article/:articleID |                  | 게시글 조회      |
-| POST   | /article            | CreateArticleDTO | 게시글 생성      |
-| DELETE | /article/:articleID |                  | 게시글 삭제      |
-| UPDATE | /article/:articleID | UpdateArticleDTO | 게시글 갱신      |
-
-### User
-
-| Method | URI        | BODY          | 설명             |
-| ------ | ---------- | ------------- | ---------------- |
-| GET    | /user      |               | 모든 사용자 조회 |
-| GET    | /user/:uid |               | 사용자 조회      |
-| POST   | /user      | CreateUserDTO | 사용자 생성      |
-| DELETE | /user/:uid |               | 사용자 삭제      |
-
-### auth/jwt
-
-| Method | URI           | BODY          | 설명                                      |
-| ------ | ------------- | ------------- | ----------------------------------------- |
-| POST   | /auth/signin  | SignInDTO     | 로그인                                    |
-| GET    | /auth/refresh |               | accessToken재발급(refreshToken 쿠키 필요) |
-| POST   | /auth/signout | CreateUserDTO | 로그아웃                                  |
-| DELETE | /auth/:uid    |               | 사용자 삭제                               |
-
-### oauth/github
-
-| Method | URI            | BODY           | 설명   |
-| ------ | -------------- | -------------- | ------ |
-| POST   | /github/signin | oauthSigninDTO | 로그인 |
-
-## 2. Graphql
+## 1. Graphql
 
 ### Article
 
 - articles: 모든 글 조회
 
 ```
-query{
+query articles{
   articles{
     articleID
     title
@@ -62,8 +26,8 @@ query{
 - article: 글 조회
 
 ```
-query{
-  article(articleID: "articleid") {
+query article($articleID: String!){
+  article(articleID: $articleID) {
     articleID
     title
     content
@@ -81,8 +45,8 @@ query{
 - createArticle: 글 생성(로그인 필요)
 
 ```
-mutation{
-  createArticle(createArticleDTO :{title: "title", content: "content"}) {
+mutation createArticle($title: String!, $content: String){
+  createArticle(createArticleDTO :{title: $title, content: $content}) {
     articleID
     title
     content
@@ -100,8 +64,8 @@ mutation{
 - updateArticle: 글 업데이트(로그인 필요)
 
 ```
-mutation{
-  updateArticle(updateArticleDTO :{title: "title", content: "content"}, articleID: "id") {
+mutation updateArticle($title: String!, $content: String, $articleID: String!) {
+  updateArticle(updateArticleDTO :{title: $title, content: $content}, articleID: $articleID) {
     articleID
     title
     content
@@ -119,8 +83,8 @@ mutation{
 - deleteArticle: 글 삭제(로그인 필요)
 
 ```
-mutation{
-  deleteArticle(articleID: "id")
+mutation deleteArticle($articleID: String!){
+  deleteArticle(articleID: $articleID)
 }
 ```
 
@@ -129,12 +93,11 @@ mutation{
 - users: 모든 유저 조회
 
 ```
-query{
+query users{
   users{
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -148,12 +111,11 @@ query{
 - user: 유저 조회
 
 ```
-query{
-  user(uid: "uid"){
+query user($uid: String!){
+  user(uid: $uid){
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -167,12 +129,11 @@ query{
 - me: 본인 정보 조회(로그인필요)
 
 ```
-query{
+query me{
   me{
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -191,12 +152,11 @@ name: 2~30글자
 email: 이메일형태로 이루어진 60글자 이내
 password: 영문대소문자, 숫자, 특수문자로 이루어진 8~30글자
 */
-mutation{
-  createUser(createUserDTO: {name: "name", email: "email", password: "password"}){
+mutation createUser($name: String!, $email: String!, $password: String!){
+  createUser(createUserDTO: {name: $name, email: $email, password: $password}){
     uid
     name
     email
-    password
     createdAt
     articles{
       articleID
@@ -210,7 +170,7 @@ mutation{
 - deleteUser: 회원 탈퇴(로그인 필요)
 
 ```
-mutation{
+mutation deleteUser {
   deleteUser
 }
 ```
@@ -220,9 +180,10 @@ mutation{
 - signin: 로그인
 
 ```
-mutation {
-	signin(signInDTO: {email: "email", password: "password"}){
+mutation signin($email: String!, $password: String!){
+	signin(signInDTO: {email: $email, password: $password}){
     accessToken
+    accesss
     refreshToken
   }
 }
@@ -231,7 +192,7 @@ mutation {
 - signOut: 로그아웃(로그인 필요)
 
 ```
-mutation{
+mutation signout {
   signout{
     token
     httpOnly
@@ -243,7 +204,7 @@ mutation{
 - refreshToken: accesstoekn발급(cookie에 refresh token 필요)
 
 ```
-mutation{
+mutation refreshToken {
   refreshToken{
     token
     httpOnly
@@ -257,10 +218,32 @@ mutation{
 - signinWithGithub: 로그인
 
 ```
-mutation{
-  signinWithGithub(oauthSigninDTO: {code: "code"}){
-    accessToken
-    refreshToken
+mutation signinWithGithub($code: String!){
+	signinWithGithub(oauthSigninDTO: {code: $code}){
+    statusCode
+    message
+    accessToken{
+			token
+      httpOnly
+      maxAge
+    }
+    refreshToken{
+			token
+      httpOnly
+      maxAge
+    }
   }
 }
 ```
+
+# ERROR CODE
+
+| CODE              | 설명                   | 예시                                               |
+| ----------------- | ---------------------- | -------------------------------------------------- |
+| EXPIRED           | code나 token이 만료    | 같은 code 두 번 사용으로 만료                      |
+| NONEXISTENT_VALUE | 필요한 값이 없음       | query variable이 부족한 경우                       |
+| INVALID_VALUE     | 유효하지 않은 값       | 패스워드 불일치, 회원가입시 이미 계정 존재         |
+| BAD_USER_INPUT    | invalid query variable | 해당 User가 존재하지 않음, article이 존재하지 않음 |
+| UNAUTHORIZED      | 인가실패               | 로그인이 필요한 기능                               |
+| UNAUTHENTICATED   | 인증실패               | 로그인, refreshtoken 재발급                        |
+| BAD_REQUEST       | class-validator error  | 이메일, 패스워드 포맷과 안맞는 경우                |

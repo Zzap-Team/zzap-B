@@ -11,14 +11,17 @@ import { User } from './user.entity';
 
 @Entity({ name: 'article' })
 export class Article {
-  @PrimaryGeneratedColumn('uuid')
-  articleID: string;
+  @PrimaryGeneratedColumn()
+  articleID: number;
 
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 3000 })
   content: string;
+
+  @Column({ type: 'varchar', length: 150 })
+  description: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -26,6 +29,6 @@ export class Article {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne((type) => User, (user) => user.articles, { onDelete: 'SET NULL' })
+  @ManyToOne((type) => User, (user) => user.articles, { onDelete: 'CASCADE' })
   author: User;
 }
