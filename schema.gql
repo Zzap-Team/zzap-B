@@ -29,7 +29,7 @@ type User {
 
 type PaginatedArticles {
   articles: [Article!]!
-  cursor: Float
+  cursor: Int
 }
 
 type SigninInfo {
@@ -39,18 +39,18 @@ type SigninInfo {
 
 type Query {
   users: [User!]!
-  user(uid: Float!): User!
+  user(uid: Int!): User!
   me: User!
-  articles(limit: Float = 6, cursor: Float = 0): PaginatedArticles!
-  article(articleID: Float!): Article!
+  articles(limit: Int = 6, cursor: Int = 0): PaginatedArticles!
+  article(articleID: Int!): Article!
 }
 
 type Mutation {
   createUser(createUserDTO: CreateUserDTO!): User!
   deleteUser: Boolean!
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
-  updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: Float!): Article!
-  deleteArticle(articleID: String!): Boolean!
+  updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: Int!): Article!
+  deleteArticle(articleID: Int!): Boolean!
   signin(signInDTO: SignInDTO!): SigninInfo!
   signout: Boolean!
   getAccessToken: String!
