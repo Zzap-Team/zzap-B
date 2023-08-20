@@ -86,7 +86,7 @@ export class ArticleResolver {
 
   @UseGuards(GqlAuthGurad)
   @Mutation((returns) => Boolean)
-  async deleteArticle(@Args('articleID') articleID: string): Promise<Boolean> {
+  async deleteArticle(@Args('articleID') articleID: number): Promise<Boolean> {
     try {
       return await this.articleService.delete(articleID);
     } catch (e) {

@@ -8,6 +8,7 @@ import { CreateArticleDTO } from './dto/createArticle.dto';
 
 import { PaginatedArticles } from './article.resolver';
 
+
 @Injectable()
 export class ArticleService {
   constructor(
@@ -68,7 +69,7 @@ export class ArticleService {
     return await this.articleRepository.save(newArticle);
   }
 
-  async delete(articleID: string): Promise<boolean> {
+  async delete(articleID: number): Promise<boolean> {
     try {
       await !!this.articleRepository.delete(articleID);
     } catch (e) {

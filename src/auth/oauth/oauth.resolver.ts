@@ -5,6 +5,8 @@ import { OauthSigninDTO } from './dto/oauthSignin.dto';
 import { SigninInfo } from '../../model/signinInfo.model';
 import { Response } from '../jwt/decorator/Response.decorator';
 
+
+
 @Resolver()
 export class OauthResolver {
   constructor(private readonly oauthService: OauthService) {}
@@ -17,7 +19,8 @@ export class OauthResolver {
     try {
       const { accessToken, refreshToken, user } =
         await this.oauthService.githubSignin(oauthSigninDTO);
-      res.cookie('refreshtoken', refreshToken);
+      res.cookie('Refresh', refreshToken);
+      res.cookie.setHttpOnly(true);
       return {
         accessToken: accessToken,
         user: user

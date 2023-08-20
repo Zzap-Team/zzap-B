@@ -28,6 +28,9 @@ import { formatError } from './formatError';
       synchronize: process.env.DB_SYNCHRONIZE === 'true', // change 'false' at Production Env
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      buildSchemaOptions: {
+        numberScalarMode: 'integer',
+      },
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       formatError: formatError,

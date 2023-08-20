@@ -31,7 +31,8 @@ export class AuthResolver {
   async signout(@Uid() uid: number,  @Response() res,): Promise<boolean> {
     try{
       const refresh = await this.authService.signOut(uid);
-      res.cookie('refreshtoken', refresh);
+      res.cookie('Refresh', refresh);
+      res.cookie.setHttpOnly(true);
       return true;
     } catch(e){
       // signout 실패 에러 던지기
