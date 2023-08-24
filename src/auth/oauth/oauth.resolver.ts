@@ -19,8 +19,8 @@ export class OauthResolver {
     try {
       const { accessToken, refreshToken, user } =
         await this.oauthService.githubSignin(oauthSigninDTO);
-      res.cookie('Refresh', refreshToken);
-      res.cookie.setHttpOnly(true);
+      res.cookie('Refresh', refreshToken,{httpOnly: true});
+      //res.cookie.setHttpOnly(true);
       return {
         accessToken: accessToken,
         user: user

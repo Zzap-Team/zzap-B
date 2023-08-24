@@ -15,7 +15,7 @@ import { formatError } from './formatError';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.development'],
+      envFilePath: ['.env.production'],
     }),
     TypeOrmModule.forRoot({
       type: 'mariadb',
