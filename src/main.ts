@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://zzaplog.shop', 'http://www.zzaplog.shop', process.env.CLIENT_URL ],
+    origin: ['http://zzaplog.shop', 'http://www.zzaplog.shop', 'http://localhost:5173', process.env.CLIENT_URL ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'access-control-allow-origin',
@@ -21,7 +21,7 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
   app.use(cookieParser());
-  // validation 데코레이터가 붙어있는 프로퍼티에 대한 유효성 검증
+  
   app.useGlobalPipes(
     new ValidationPipe({
       // exceptionFactory: (errors) => {

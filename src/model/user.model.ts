@@ -18,4 +18,5 @@ export class User {
 
   @Field(() => [Article], { nullable: true })
   articles: Article[];
+
 }

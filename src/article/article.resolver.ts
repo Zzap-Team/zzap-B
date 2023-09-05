@@ -17,6 +17,8 @@ import { CreateArticleDTO } from './dto/createArticle.dto';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { Uid } from 'src/auth/jwt/decorator/uid.decorator';
 import { User } from 'src/model/user.model';
+import { Tag } from 'src/model/tag.model';
+import { TagService } from 'src/tag/tag.service';
 
 
 @ObjectType()
@@ -30,7 +32,8 @@ export class PaginatedArticles {
 
 @Resolver((returns) => Article)
 export class ArticleResolver {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(private readonly articleService: ArticleService, 
+    private readonly tagService: TagService) {}
 
   @Query((returns) => PaginatedArticles, { name: 'articles' })
   async getArticles(
@@ -38,9 +41,8 @@ export class ArticleResolver {
     @Args('cursor', { nullable: true, defaultValue: 0 }) cursor: number): 
   Promise<PaginatedArticles> {
     try {
-      console.log(limit, cursor);
       const temp = await this.articleService.findAll(limit, cursor);
-      console.log(temp);
+      console.log('getArticles');
       return temp;
     } catch (e) {
       throw new ApolloError(e);
@@ -93,6 +95,35 @@ export class ArticleResolver {
       throw new ApolloError(e);
     }
   }
+  //@UseGuards(GqlAuthGurad)
+  @Mutation(() => Article)
+  async addTags(@Args('articleID') articleID: number, @Args('name') name: string): Promise<Article>{
+    const article = await this.articleService.findOne(articleID);
+    if (article === null) {
+      throw new UserInputError('Can not find article for articleID', {
+        argumentName: 'articleID',
+      });
+    } 
+    const tags = await this.tagService.findByArticle(articleID);
+    const tag = await this.tagService.create(name);
+    const newTags= [...tags, tag];
+    return await this.articleService.addTag(article, newTags);
+  }
+
+  //@UseGuards(GqlAuthGurad)
+  /*@Mutation(() => Article)
+  async removeTags(@Args('articleID') articleID: number, @Args('name') name: string): Promise<Boolean>{
+    const article = await this.articleService.findOne(articleID);
+    if (article === null) {
+      throw new UserInputError('Can not find article for articleID', {
+        argumentName: 'articleID',
+      });
+    } 
+    const tags = await this.tagService.findByArticle(articleID);
+    const tag = await this.tagService.create(name);
+    const newTags= [...tags, tag];
+    return true;
+  }*/
 
   // TODO: Apply Dataloader
   @ResolveField('author', (returns) => User)
@@ -100,4 +131,13 @@ export class ArticleResolver {
     const author = article.author;
     return author;
   }
+
+
+  // TODO: Apply Dataloader
+  @ResolveField('tags', () => [Tag])
+  async getTags(@Parent() article: Article) {
+   const { articleID } = article;
+    return await this.tagService.findByArticle(articleID);
+  }
+
 }

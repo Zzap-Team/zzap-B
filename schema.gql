@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""tag"""
+type Tag {
+  name: String!
+  articles: [Article!]
+}
+
 """article"""
 type Article {
   articleID: ID!
@@ -11,6 +17,7 @@ type Article {
   createdAt: DateTime!
   updatedAt: DateTime!
   author: User!
+  tags: [Tag!]!
 }
 
 """
@@ -43,6 +50,7 @@ type Query {
   me: User!
   articles(limit: Int = 6, cursor: Int = 0): PaginatedArticles!
   article(articleID: Int!): Article!
+  tag(name: String!): Tag!
 }
 
 type Mutation {
@@ -51,6 +59,9 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: Int!): Article!
   deleteArticle(articleID: Int!): Boolean!
+  addTags(articleID: Int!, name: String!): Article!
+  createTag(name: String!): Tag!
+  deleteTag(name: String!): Boolean!
   signin(signInDTO: SignInDTO!): SigninInfo!
   signout: Boolean!
   getAccessToken: String!

@@ -27,4 +27,5 @@ export class User {
 
   @OneToMany((type) => Article, (article) => article.author, { nullable: true })
   articles: Article[];
+
 }

@@ -6,8 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from './user.entity';
+import { Tag } from './tag.entity';
 
 @Entity({ name: 'article' })
 export class Article {
@@ -31,4 +34,8 @@ export class Article {
 
   @ManyToOne((type) => User, (user) => user.articles, { onDelete: 'CASCADE' })
   author: User;
+
+  @ManyToMany(() => Tag, (tag) => tag.articles, { cascade: true})
+  @JoinTable()
+  tags: Tag[];
 }

@@ -7,6 +7,7 @@ import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 
 import { PaginatedArticles } from './article.resolver';
+import { Tag } from 'src/model/tag.entity';
 
 
 @Injectable()
@@ -43,12 +44,20 @@ export class ArticleService {
   }
 
   async findAllByUid(uid: number): Promise<Article[]> {
-    console.log('uid', uid);
     return await this.articleRepository
       .createQueryBuilder('article')
       .leftJoinAndSelect('article.author', 'author')
       .where('article.author = :uid', { uid: uid })
       .orderBy('article.author', 'DESC')
+      .getMany();
+  }
+
+  async findByTag(name: string) : Promise<Article[]> {
+
+   return await this.articleRepository
+      .createQueryBuilder('article')
+      .leftJoinAndSelect('article.tags', 'tags')
+      .where('name = :name', { name: name })
       .getMany();
   }
 
@@ -80,16 +89,22 @@ export class ArticleService {
 
   async update(articleID: number, article: UpdateArticleDTO): Promise<Article> {
     try {
+      console.log(articleID);
       const temp = await this.articleRepository.update(articleID, {
         content: article.content,
-        title: article.content,
+        title: article.title,
         description: article.description,
         updatedAt: new Date(),
       });
-      console.log(temp);
+      
       return await this.findOne(articleID);
     } catch (e) {
       throw new Error(e);
     }
+  }
+
+  async addTag(article: Article, tags: Tag[]){
+    article.tags = tags;
+    return await this.articleRepository.save(article); 
   }
 }

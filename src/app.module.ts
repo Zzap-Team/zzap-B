@@ -11,11 +11,12 @@ import { ArticleModule } from './article/article.module';
 import { AuthModule } from './auth/jwt/jwtAuth.module';
 import { OauthModule } from './auth/oauth/oauth.module';
 import { formatError } from './formatError';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.production'],
+      envFilePath: ['.env.development', '.env.production'],
     }),
     TypeOrmModule.forRoot({
       type: 'mariadb',
@@ -49,6 +50,7 @@ import { formatError } from './formatError';
     ArticleModule,
     AuthModule,
     OauthModule,
+    TagModule,
   ],
 })
 export class AppModule {}
