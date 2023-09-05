@@ -97,7 +97,7 @@ export class ArticleResolver {
   }
   //@UseGuards(GqlAuthGurad)
   @Mutation(() => Article)
-  async addTags(@Args('articleID') articleID: number, @Args('name') name: string): Promise<Article>{
+  async addTag(@Args('articleID') articleID: number, @Args('name') name: string): Promise<Article>{
     const article = await this.articleService.findOne(articleID);
     if (article === null) {
       throw new UserInputError('Can not find article for articleID', {

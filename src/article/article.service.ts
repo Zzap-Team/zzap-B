@@ -89,7 +89,6 @@ export class ArticleService {
 
   async update(articleID: number, article: UpdateArticleDTO): Promise<Article> {
     try {
-      console.log(articleID);
       const temp = await this.articleRepository.update(articleID, {
         content: article.content,
         title: article.title,

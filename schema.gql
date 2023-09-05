@@ -59,7 +59,7 @@ type Mutation {
   createArticle(createArticleDTO: CreateArticleDTO!): Article!
   updateArticle(updateArticleDTO: UpdateArticleDTO!, articleID: Int!): Article!
   deleteArticle(articleID: Int!): Boolean!
-  addTags(articleID: Int!, name: String!): Article!
+  addTag(articleID: Int!, name: String!): Article!
   createTag(name: String!): Tag!
   deleteTag(name: String!): Boolean!
   signin(signInDTO: SignInDTO!): SigninInfo!
