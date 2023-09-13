@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://zzaplog.shop', 'http://www.zzaplog.shop', 'http://localhost:5173', process.env.CLIENT_URL ],
+    origin: ['https://www.zzaplog.site', 'https://zzaplog.site', 'https://zzaplog.site/graphql', 'http://localhost:5173', process.env.CLIENT_URL ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'access-control-allow-origin',

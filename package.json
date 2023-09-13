@@ -1,7 +1,7 @@
 {
   "name": "zzap-b",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Zzap Log Server",
   "license": "MIT",
   "scripts": {

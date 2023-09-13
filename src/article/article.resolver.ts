@@ -126,7 +126,7 @@ export class ArticleResolver {
   }*/
 
   // TODO: Apply Dataloader
-  @ResolveField('author', (returns) => User)
+  @ResolveField('author', () => User)
   async getAuthor(@Parent() article: Article) {
     const author = article.author;
     return author;

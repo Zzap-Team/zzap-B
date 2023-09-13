@@ -26,8 +26,8 @@ constructor(private readonly tagService: TagService
     async getTag(@Args('name') name: string) {
         const tag = await this.tagService.findOne(name);
         if (tag === null) {
-            throw new UserInputError('Can not find article for articleID', {
-                argumentName: 'articleID',
+            throw new UserInputError('Can not find tag', {
+                argumentName: 'tagName',
             });
         }
         return tag;

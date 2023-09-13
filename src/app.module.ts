@@ -16,7 +16,7 @@ import { TagModule } from './tag/tag.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.development', '.env.production'],
+      envFilePath: ['.env.development'],
     }),
     TypeOrmModule.forRoot({
       type: 'mariadb',
