@@ -240,7 +240,6 @@ mutation signinWithGithub($code: String!){
 
 | CODE              | 설명                   | 예시                                               |
 | ----------------- | ---------------------- | -------------------------------------------------- |
-| EXPIRED           | code나 token이 만료    | 같은 code 두 번 사용으로 만료                      |
 | NONEXISTENT_VALUE | 필요한 값이 없음       | query variable이 부족한 경우                       |
 | INVALID_VALUE     | 유효하지 않은 값       | 패스워드 불일치, 회원가입시 이미 계정 존재         |
 | BAD_USER_INPUT    | invalid query variable | 해당 User가 존재하지 않음, article이 존재하지 않음 |

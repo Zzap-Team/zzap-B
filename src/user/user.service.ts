@@ -31,10 +31,11 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ email: email });
     if (user) {
       return user;
-    } else
+    } /*else
       throw new UserInputError('Can not found user at database', {
         data: 'User',
-      });
+      });*/
+      return null;
   }
 
   private async exist(email: string): Promise<boolean> {
@@ -46,11 +47,12 @@ export class UserService {
     const isExist = await this.exist(createUserDTO.email);
     if (isExist)
       throw new ApolloError('This account already exists.', 'INVALID_VALUE');
+    newUser.email = createUserDTO.email;
     newUser.name = createUserDTO.name;
     newUser.createdAt = new Date();
     newUser.articles = null;
-    newUser.email = createUserDTO.email;
-    newUser.password = await bcrypt.hash(createUserDTO.password, 10);
+    if (createUserDTO.password === null) newUser.password = null;
+    else newUser.password = await bcrypt.hash(createUserDTO.password, 10);
     return await this.userRepository.save(newUser);
   }
 

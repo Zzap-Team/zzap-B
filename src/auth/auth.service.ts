@@ -46,9 +46,7 @@ export class AuthService {
       });
       return token;
     } catch (e) {
-      throw new ApolloError('Refresh token is expired', 'EXPIRED', {
-        argumentName: 'refreshToken',
-      });
+      throw new AuthenticationError('Your access token is expired');
     }
   }
 
@@ -61,9 +59,7 @@ export class AuthService {
       });
       return token;
     } catch (e) {
-      throw new ApolloError('Refresh token is expired', 'EXPIRED', {
-        argumentName: 'refreshToken',
-      });
+       throw new AuthenticationError('Your access token is expired');
     }
   }
 }

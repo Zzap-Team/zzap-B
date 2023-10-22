@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_DEV],
+    origin: ['http://zzaplog.shop', 'http://www.zzaplog.shop', 'http://localhost:5173', process.env.CLIENT_URL ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'access-control-allow-origin',
@@ -16,9 +16,7 @@ async function bootstrap() {
       'authorization',
       'cookie',
     ],
-    // 쿠키, 인증 헤더 등을 사용할 수 있게 할 것인가?
     credentials: true,
-    // CORS 프리플라이트 요청에 대한 응답이 다음 미들웨어로 전달되도록 할 것인가?
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

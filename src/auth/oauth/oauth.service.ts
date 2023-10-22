@@ -43,14 +43,13 @@ export class OauthService extends AuthService {
       );
     }
     user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      user = await this.userService.createWithUid(
+    if (user == null) {
+      user = await this.userService.create(
         {
           name: login,
           email: email,
           password: null,
         },
-        node_id,
       );
     }
     const accessToken = await this.getJwtAccessToken(user.uid);
@@ -79,9 +78,7 @@ export class OauthService extends AuthService {
     if (response.data.error) {
       switch (response.data.error) {
         case 'bad_verification_code':
-          throw new AuthenticationError('github Code is expired', {
-            code: 'EXPIRED',
-          });
+           throw new AuthenticationError('Your access token is expired');
         default:
           throw new AuthenticationError('fail github authentication!!', {
             code: 'INTERNAL_SERVER_ERROR',
