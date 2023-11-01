@@ -5,50 +5,42 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthenticationError } from 'apollo-server-express';
 
-import { UserModule } from './user/user.module';
-import { User } from './model/user.entity';
+import { UsersModule } from './modules/users/users.module';
+import { User } from './modules/users/user.entity';
 import { ArticleModule } from './article/article.module';
 import { AuthModule } from './auth/jwt/jwtAuth.module';
 import { OauthModule } from './auth/oauth/oauth.module';
 import { formatError } from './formatError';
+import { join } from 'path';
+import { Login } from './modules/login/login.entity';
+import { LoginModule } from './modules/login/login.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.production'],
+      envFilePath: ['.env.development'], // don't touch the order! if the order changed, env precedense mass
     }),
     TypeOrmModule.forRoot({
       type: 'mariadb',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [__dirname + `/**/*.entity{.ts,.js}`],
-      synchronize: process.env.DB_SYNCHRONIZE === 'true', // change 'false' at Production Env
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '7410',
+      database: 'zzap',
+      entities: [User, Login],
+      // entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // change 'false' at Production Env
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      buildSchemaOptions: {
-        numberScalarMode: 'integer',
-      },
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
-      formatError: formatError,
-      context: ({ req, res }) => {
-        //graphql에게 request를 요청할때 req안으로 jwt토큰이 담깁니다.
-        if (req) {
-          const token = req.headers.authorization;
-          return { req, res, token };
-        } else {
-          return { req, res };
-        }
+      typePaths: ['./**/*.graphql'],
+      definitions: {
+        path: join(process.cwd(), 'src/graphql.ts'),
+        outputAs: 'class',
       },
-      //playground: false
     }),
-    UserModule,
-    ArticleModule,
-    AuthModule,
-    OauthModule,
+    UsersModule,
+    LoginModule,
   ],
 })
 export class AppModule {}

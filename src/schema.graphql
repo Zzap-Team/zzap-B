@@ -1,0 +1,37 @@
+scalar Date
+
+type User {
+  userId: ID!
+  email: String!
+  name: String!
+  createdAt: Date!
+  isActive: Boolean!
+}
+
+type Query {
+  user(id: ID!): User!
+}
+
+type Mutation {
+  addUser(input: UserInput): User!
+  deleteUser(id: ID!): Boolean!
+  updateUser(id: ID!, input: UserInput): User!
+  loginWithThirdParty(input: LoginWithThirdPartyInput): User!
+  loginWithPassword(input: LoginWithPasswordInput): User!
+}
+
+input UserInput {
+  name: String
+  email: String
+  password: String
+}
+
+input LoginWithPasswordInput {
+  email: String!
+  password: String!
+}
+
+input LoginWithThirdPartyInput {
+  vendor: String!
+  authCode: String
+}
