@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 
 import { OauthSigninDTO } from './dto/oauthSignin.dto';
 import { UserService } from 'src/user/user.service';
-import { User } from 'src/model/user.entity';
+import { User } from 'src/modules/user/user.entity';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -17,12 +17,14 @@ export class OauthService extends AuthService {
     super(userService, jwtService);
   }
 
-  public async githubSignin(oauthSigninDTO: OauthSigninDTO) { // return => {access, refresh, user}
+  public async githubSignin(oauthSigninDTO: OauthSigninDTO) {
+    // return => {access, refresh, user}
     const { code } = oauthSigninDTO;
     let access_token = '';
     try {
       access_token = await this.getAccessToken(code);
-    } catch (e) { // fail github authentication to code
+    } catch (e) {
+      // fail github authentication to code
       console.log('error', e);
       throw e;
     }
@@ -44,13 +46,11 @@ export class OauthService extends AuthService {
     }
     user = await this.userService.findOneByEmail(email);
     if (user == null) {
-      user = await this.userService.create(
-        {
-          name: login,
-          email: email,
-          password: null,
-        },
-      );
+      user = await this.userService.create({
+        name: login,
+        email: email,
+        password: null,
+      });
     }
     const accessToken = await this.getJwtAccessToken(user.uid);
     const refreshToken = await this.getJwtRefreshToken(user.uid);
@@ -58,7 +58,7 @@ export class OauthService extends AuthService {
     return {
       accessToken,
       refreshToken,
-      user
+      user,
     };
   }
 
@@ -78,7 +78,7 @@ export class OauthService extends AuthService {
     if (response.data.error) {
       switch (response.data.error) {
         case 'bad_verification_code':
-           throw new AuthenticationError('Your access token is expired');
+          throw new AuthenticationError('Your access token is expired');
         default:
           throw new AuthenticationError('fail github authentication!!', {
             code: 'INTERNAL_SERVER_ERROR',

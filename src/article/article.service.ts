@@ -2,12 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
 import { Article } from '../model/article.entity';
-import { User } from 'src/model/user.entity';
+import { User } from 'src/modules/user/user.entity';
 import { UpdateArticleDTO } from './dto/updateArticle.dto';
 import { CreateArticleDTO } from './dto/createArticle.dto';
 
 import { PaginatedArticles } from './article.resolver';
-
 
 @Injectable()
 export class ArticleService {
@@ -17,7 +16,6 @@ export class ArticleService {
   ) {}
 
   async findAll(limit: number, cursor: number): Promise<PaginatedArticles> {
-    
     const realLimit = Math.min(24, limit);
     if (cursor < 0) return { articles: [] };
     const articles = await this.articleRepository.find({
