@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HttpService } from '@nestjs/axios';
 import { Login } from './login.entity';
 import { UsersService } from '../users/users.service';
-import { map, lastValueFrom } from 'rxjs';
+import { HttpService } from '../http/http.service';
 
 @Injectable()
 export class LoginService {
@@ -16,30 +15,28 @@ export class LoginService {
   ) {}
 
   async loginWithGithub(authCode: string) {
-    const { access_token: accessToken } = await lastValueFrom(
-      this.httpService
-        .get('https://github.com/login/oauth/access_token', {
-          params: {
-            code: authCode,
-            client_id: process.env.GITHUB_CLIENT_ID,
-            client_secret: process.env.GITHUB_CLIENT_SECRET,
-          },
-          headers: {
-            Accept: 'application/json',
-          },
-        })
-        .pipe(map((res) => res.data)),
+    const { access_token: accessToken } = await this.httpService.get(
+      'https://github.com/login/oauth/access_token',
+      {
+        params: {
+          code: authCode,
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+        },
+        headers: {
+          Accept: 'application/vnd.github+json',
+        },
+      },
     );
-    const emails = (await lastValueFrom(
-      this.httpService
-        .get('https://api.github.com/user/emails', {
-          headers: {
-            Accept: 'application/vnd.github+json',
-            Authorization: `Bearer ${accessToken}`,
-            'X-GitHub-Api-Version': '2022-11-28',
-          },
-        })
-        .pipe(map((res) => res.data)),
+    const emails = (await this.httpService.get(
+      'https://api.github.com/user/emails',
+      {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${accessToken}`,
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      },
     )) as Array<any>;
     const email: string = emails[0].email;
     const user = await this.usersService.findOneByEmail(email);
