@@ -14,6 +14,7 @@ import { formatError } from './formatError';
 import { join } from 'path';
 import { Login } from './modules/login/login.entity';
 import { LoginModule } from './modules/login/login.module';
+import { HttpModule } from './modules/http/http.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LoginModule } from './modules/login/login.module';
     }),
     UsersModule,
     LoginModule,
+    HttpModule,
   ],
 })
 export class AppModule {}
