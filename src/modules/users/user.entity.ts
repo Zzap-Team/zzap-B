@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Login } from '../login/login.entity';
+import { Article } from '../article/article.entity';
 
 @Entity()
 export class User {
@@ -28,6 +29,9 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToMany(() => Login, (login) => login.user)
+  @OneToMany(() => Login, (login) => login.user, { cascade: true })
   logins: Login[];
+
+  @OneToMany(() => Article, (article) => article.author, { eager: true })
+  articles: Article[];
 }

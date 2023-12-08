@@ -1,12 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, BadRequestException } from '@nestjs/common';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
+import { error } from 'console';
+import { UserInputError } from '@nestjs/apollo';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://zzaplog.shop', 'http://www.zzaplog.shop', 'http://localhost:5173', process.env.CLIENT_URL ],
+    origin: [
+      'http://zzaplog.shop',
+      'http://www.zzaplog.shop',
+      'http://localhost:5173',
+    ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'access-control-allow-origin',
@@ -25,11 +31,8 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       // exceptionFactory: (errors) => {
-      //   const result = errors.map((error) => ({
-      //     property: error.property,
-      //     message: error.constraints[Object.keys(error.constraints)[0]],
-      //   }));
-      //   return new BadRequestException(result);
+      //   console.log('[exceptionFactory] erros', errors);
+      //   return new UserInputError('wow');
       // },
       transform: true,
     }),

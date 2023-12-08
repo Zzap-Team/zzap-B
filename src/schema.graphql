@@ -1,28 +1,51 @@
-scalar Date
-
+scalar Date # need to implement custom scalar
+scalar JWT # need to implement custom scalar
 type User {
   userId: ID!
   email: String!
   name: String!
   createdAt: Date!
-  isActive: Boolean!
+  deletedAt: Date
+  articles: [Article]!
+}
+
+type Article {
+  articleId: ID!
+  author: User!
+  title: String!
+  content: String!
+  description: String
+  createdAt: Date!
+  modifiedAt: Date!
 }
 
 type Query {
-  user(id: ID!): User!
+  me: User!
+  article(articleId: ID!): Article!
 }
 
 type Mutation {
-  addUser(input: UserInput): User!
-  deleteUser(id: ID!): Boolean!
-  updateUser(id: ID!, input: UserInput): User!
-  loginWithThirdParty(input: LoginWithThirdPartyInput): User!
-  loginWithPassword(input: LoginWithPasswordInput): User!
+  deleteMe: Boolean! # Need AccessToken
+  updateMe(input: UserInput): User! # Need AccessToken
+  addArticle(input: ArticleInput): Article! # Need AccessToken
+  deleteArticle(articleId: ID!): Boolean! # Need AccessToken
+  updateArticle(articleId: ID!, input: ArticleInput): Article! # Need AccessToken
+  """
+  login endpoint will return access token and refresh token in cookie.
+  """
+  loginWithThirdParty(input: LoginWithThirdPartyInput): LoginResult!
+  loginWithPassword(input: LoginWithPasswordInput): LoginResult!
+  refreshAccessToken: JWT!
+}
+
+type LoginResult {
+  user: User!
+  accessToken: JWT!
 }
 
 input UserInput {
-  name: String
-  email: String
+  name: String!
+  email: String!
   password: String
 }
 
@@ -33,5 +56,11 @@ input LoginWithPasswordInput {
 
 input LoginWithThirdPartyInput {
   vendor: String!
-  authCode: String
+  authCode: String!
+}
+
+input ArticleInput {
+  title: String
+  content: String
+  description: String
 }

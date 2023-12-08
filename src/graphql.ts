@@ -9,8 +9,8 @@
 /* eslint-disable */
 
 export class UserInput {
-    name?: Nullable<string>;
-    email?: Nullable<string>;
+    name: string;
+    email: string;
     password?: Nullable<string>;
 }
 
@@ -21,7 +21,13 @@ export class LoginWithPasswordInput {
 
 export class LoginWithThirdPartyInput {
     vendor: string;
-    authCode?: Nullable<string>;
+    authCode: string;
+}
+
+export class ArticleInput {
+    title?: Nullable<string>;
+    content?: Nullable<string>;
+    description?: Nullable<string>;
 }
 
 export class User {
@@ -29,23 +35,48 @@ export class User {
     email: string;
     name: string;
     createdAt: Date;
-    isActive: boolean;
+    deletedAt?: Nullable<Date>;
+    articles: Nullable<Article>[];
+}
+
+export class Article {
+    articleId: string;
+    author: User;
+    title: string;
+    content: string;
+    description?: Nullable<string>;
+    createdAt: Date;
+    modifiedAt: Date;
 }
 
 export abstract class IQuery {
-    abstract user(id: string): User | Promise<User>;
+    abstract me(): User | Promise<User>;
+
+    abstract article(articleId: string): Article | Promise<Article>;
 }
 
 export abstract class IMutation {
-    abstract addUser(input?: Nullable<UserInput>): User | Promise<User>;
+    abstract deleteMe(): boolean | Promise<boolean>;
 
-    abstract deleteUser(id: string): boolean | Promise<boolean>;
+    abstract updateMe(input?: Nullable<UserInput>): User | Promise<User>;
 
-    abstract updateUser(id: string, input?: Nullable<UserInput>): User | Promise<User>;
+    abstract addArticle(input?: Nullable<ArticleInput>): Article | Promise<Article>;
 
-    abstract loginWithThirdParty(input?: Nullable<LoginWithThirdPartyInput>): User | Promise<User>;
+    abstract deleteArticle(articleId: string): boolean | Promise<boolean>;
 
-    abstract loginWithPassword(input?: Nullable<LoginWithPasswordInput>): User | Promise<User>;
+    abstract updateArticle(articleId: string, input?: Nullable<ArticleInput>): Article | Promise<Article>;
+
+    abstract loginWithThirdParty(input?: Nullable<LoginWithThirdPartyInput>): LoginResult | Promise<LoginResult>;
+
+    abstract loginWithPassword(input?: Nullable<LoginWithPasswordInput>): LoginResult | Promise<LoginResult>;
+
+    abstract refreshAccessToken(): JWT | Promise<JWT>;
 }
 
+export class LoginResult {
+    user: User;
+    accessToken: JWT;
+}
+
+export type JWT = any;
 type Nullable<T> = T | null;

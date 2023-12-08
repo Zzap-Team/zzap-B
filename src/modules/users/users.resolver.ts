@@ -1,33 +1,37 @@
+import { UseFilters } from '@nestjs/common';
 import { Query, Resolver, Args, Mutation } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { AddUserInput } from './dto/addUser.input';
 import { UpdateUserInput } from './dto/updateUser.input';
+import { UseGuards } from '@nestjs/common/decorators';
+import { GqlJwtAuthGuard } from '../auth/gql-jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { User } from './user.entity';
+import { GqlValidationExceptionFilter } from '../GQLExceptionFilter';
 
 @Resolver('User')
+@UseFilters(GqlValidationExceptionFilter)
 export class UsersResolver {
   constructor(private usersService: UsersService) {}
-
-  @Query('user')
-  async getUser(@Args('id') id: number) {
-    return this.usersService.findOneByID(id);
+  @Query('me')
+  @UseGuards(GqlJwtAuthGuard)
+  async me(@CurrentUser() user: User) {
+    return this.usersService.findOneByID(user.userId);
   }
 
-  @Mutation('addUser')
-  async addUser(@Args('input') { name, email }: AddUserInput) {
-    return this.usersService.create(name, email);
+  @Mutation('deleteMe')
+  @UseGuards(GqlJwtAuthGuard)
+  async deleteMe(@CurrentUser() user: User) {
+    const deletedUser = await this.usersService.delete(user.userId);
+    return !!deletedUser;
   }
 
-  @Mutation('deleteUser')
-  async deleteUser(@Args('id') id: number) {
-    const deletedUser = await this.usersService.delete(id);
-    return !!!deletedUser.deletedAt;
-  }
-
-  @Mutation('updateUser')
+  @Mutation('updateMe')
+  @UseGuards(GqlJwtAuthGuard)
   async updateUser(
-    @Args('id') id: number,
+    @CurrentUser() user: User,
     @Args('input') { name, email }: UpdateUserInput,
   ) {
-    return this.usersService.update(id, name, email);
+    return this.usersService.update(user.userId, name!, email);
   }
 }
